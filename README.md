@@ -1,6 +1,6 @@
 # Tested on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 18.04.
 
-1. Things done
+1. What it does
 1) install shadowsocks-libev and v2ray-plugin;
 2) install lamp of the latest version;
 3) config ss over ws+tls behind web service.
