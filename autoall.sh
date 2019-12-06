@@ -82,12 +82,22 @@ EOF
 enable_BBR(){
     sysctl net.ipv4.tcp_available_congestion_control | grep bbr > /dev/null
     if [ $? -ne 0 ]; then
+        cat /etc/sysctl.conf | grep 'net.core.default_qdisc' >./bbr.tmp
+        cat /etc/sysctl.conf | grep 'net.ipv4.tcp_congestion_control' >>./bbr.tmp
+    	sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+    	sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
         echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
         echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
         sysctl -p
+    else
+        return 0
     fi
     lsmod | grep bbr
     if [ $? -ne 0 ]; then
+    	sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+    	sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+        cat ./bbr.tmp >>/etc/sysctl.conf
+        rm -f ./bbr.tmp
         echo -e "[${yellow}Warning${plain}] BBR not enabled."
     fi
 }
@@ -319,7 +329,7 @@ set_email_addr
 set_pw_enc
 set_domain
 update_sys
-#enable_BBR
+enable_BBR
 fix_swap
 install_shadowsocks
 install_lamp_git
