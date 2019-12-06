@@ -6,7 +6,7 @@
 3) config ss over ws+tls behind web service.
 
 2. Requirements
-1) an accessible domain;
+1) a valid domain pointed to the IP address of your VPS;
 2) (optional) an password to private key, if you choose to use key pair to log in;
 3) (optional) an email address, if you want to receive essential info after things done.
 
