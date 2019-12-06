@@ -70,6 +70,7 @@ update_sys(){
     export DEBIAN_FRONTEND=noninteractive
     apt-get update && apt-get -o Dpkg::Options::="--force-confnew" dist-upgrade --quiet --assume-yes
     # config auto-update
+    # https://discourse.ubuntu.com/t/package-management/11908
     apt-get install unattended-upgrades -y
     cat >/etc/apt/apt.conf.d/20auto-upgrades <<-EOF
 APT::Periodic::Update-Package-Lists "1";
