@@ -68,10 +68,10 @@ update_sys(){
     mv /root/virt-sysprep-firstboot.log /usr/lib/virt-sysprep
     # lsb_release -a
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update && apt-get -o Dpkg::Options::="--force-confnew" dist-upgrade --quiet --assume-yes
+    apt-get update && apt-get -qq -o Dpkg::Options::="--force-confnew" dist-upgrade
     # config auto-update
     # https://discourse.ubuntu.com/t/package-management/11908
-    apt-get install unattended-upgrades -y
+    apt-get -qq install unattended-upgrades
     cat >/etc/apt/apt.conf.d/20auto-upgrades <<-EOF
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Download-Upgradeable-Packages "1";
@@ -138,7 +138,7 @@ install_lamp_git(){
     # lamp install prep
     DBROOTPWDRAND="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
 
-    apt-get install git -y
+    apt-get -qq install git
     git clone https://github.com/teddysun/lamp.git
     cd /root/lamp
     chmod +x *.sh
@@ -168,11 +168,11 @@ get_cert(){
         echo "[${green}Info${plain}] cert already got, skip."
     else
         apt-get update
-            apt-get install -y software-properties-common
+            apt-get -qq install software-properties-common
             add-apt-repository -y universe
             add-apt-repository -y ppa:certbot/certbot
             apt-get update
-        apt-get install -y certbot 
+        apt-get -qq install certbot 
         certbot certonly --agree-tos --register-unsafely-without-email --webroot -w ${website_root} -d ${domain}
         if [ ! -f /etc/letsencrypt/live/$domain/fullchain.pem ];then
             echo "[${red}Error${plain}] Failed to get cert."
