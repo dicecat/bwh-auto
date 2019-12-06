@@ -11,9 +11,8 @@
 3) (optional) an email address, if you want to receive essential info after things done.
 
 3. Usage
-1) apt-get -qq install screen host
+1) apt-get -qq install screen
 2) screen -S bwh
-3) wget --no-check-certificate -qO ~/autoall.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/autoall.sh
-4) chmod +x ~/autoall.sh
-5) ~/autoall.sh 2>&1 | tee autoall.log
+3) wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
+4) bash ~/autoall.sh 2>&1 | tee autoall.log
 
