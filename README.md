@@ -1,6 +1,6 @@
 # Tested on BandwagonHost VPS running Ubuntu 18.04.
 # 
-# [Support me & register an BandwagonHost account ](https://tinyurl.com/y4v2rl2u)
+# [Register a BandwagonHost account ](https://tinyurl.com/y4v2rl2u)
 
 1. Things done
 1) install shadowsocks-libev and v2ray-plugin;
