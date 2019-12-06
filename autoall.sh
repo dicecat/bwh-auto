@@ -49,15 +49,13 @@ set_domain(){
     echo -e "Please enter ${yellow}your domain${plain}:"
     read domain
     domain="${domain%% *}"
-    [ -z "${domain}" ] && domain="Invalid"
-    host ${domain} 2>&1 > /dev/null
-    while [ $? -ne 0 ]
+    test_domain=$(curl -sH 'accept: application/dns-json' "https://cloudflare-dns.com/dns-query?name=${domain}&type=A" | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}" | head -1)
+    while [ -z "${test_domain}" ]
     do
         echo -e "[${red}Error${plain}] Invalid domain. Please try again:"
         read domain
         domain="${domain%% *}"
-        [ -z "${domain}" ] && domain="Invalid"
-        host ${domain} 2>&1 > /dev/null
+        test_domain=$(curl -sH 'accept: application/dns-json' "https://cloudflare-dns.com/dns-query?name=${domain}&type=A" | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}" | head -1)
     done
     echo -e "domain = ${yellow}${domain}${plain}"
 }
