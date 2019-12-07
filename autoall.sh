@@ -7,6 +7,27 @@
 wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/ss-libev.sh
 . ~/ss-libev.sh prep 2>&1 > /dev/null
 
+# Set domain
+set_domain(){
+    echo
+    echo -e "[${green}Required: domain${plain}]"
+    echo "A valid domain which points to the IP of this VPS is required to obtain SSL certificate."
+    echo -e "Please enter ${yellow}your domain${plain}:"
+    read domain
+    domain="${domain%% *}"
+    [ -z "${domain}" ] && domain="Invalid"
+    host ${domain} 2>&1 > /dev/null
+    while [ $? -ne 0 ]
+    do
+        echo -e "[${red}Error${plain}] Invalid domain. Please try again:"
+        read domain
+        domain="${domain%% *}"
+        [ -z "${domain}" ] && domain="Invalid"
+        host ${domain} 2>&1 > /dev/null
+    done
+    echo -e "domain = ${yellow}${domain}${plain}"
+}
+
 set_email_addr(){
     echo
     echo -e "[${green}Optional: email address${plain}]"
@@ -39,27 +60,6 @@ set_pw_enc(){
     read pw_enc
     [ -z "${pw_enc}" ] && pw_enc="${email_addr}"
     echo -e "password = ${yellow}${pw_enc}${plain}"
-}
-
-# Set domain
-set_domain(){
-    echo
-    echo -e "[${green}Required: domain${plain}]"
-    echo "A valid domain which points to the IP of this VPS is required to obtain SSL certificate."
-    echo -e "Please enter ${yellow}your domain${plain}:"
-    read domain
-    domain="${domain%% *}"
-    [ -z "${domain}" ] && domain="Invalid"
-    host ${domain} 2>&1 > /dev/null
-    while [ $? -ne 0 ]
-    do
-        echo -e "[${red}Error${plain}] Invalid domain. Please try again:"
-        read domain
-        domain="${domain%% *}"
-        [ -z "${domain}" ] && domain="Invalid"
-        host ${domain} 2>&1 > /dev/null
-    done
-    echo -e "domain = ${yellow}${domain}${plain}"
 }
 
 # update system
@@ -313,7 +313,7 @@ essential_info(){
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
     apt-get -qq install sendmail
-    echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Essential info from installation" | cat - ./autoall.essential | sendmail -t
+    echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Essential info from installation" | cat - /root/autoall.essential | sendmail -t
 }
 
 ####################
@@ -324,9 +324,9 @@ essential_info(){
 
 clear
 check_environment
+set_domain
 set_email_addr
 set_pw_enc
-set_domain
 update_sys
 enable_BBR
 fix_swap
@@ -340,4 +340,4 @@ create_vhost443
 modify_ssconf
 disable_pw_login
 essential_info
-#reboot
+reboot
