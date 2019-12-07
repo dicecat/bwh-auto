@@ -308,14 +308,11 @@ EOF
 
 # process essential info
 essential_info(){
-    if [ ! -z "${pw_enc}" ]; then
-        apt-get -qq install sendmail
-        cat /root/.ssh/id_ed25519 > /root/autoall.essential
-    fi
     cat /etc/shadowsocks-libev/config.json >> /root/autoall.essential
     echo -e "MySQL root password: $DBROOTPWDRAND" >> /root/autoall.essential
-    [ -z "${pw_enc}" ] && return 0
+    [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 > /root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
+    apt-get -qq install sendmail
     echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Essential info from installation" | cat - ./autoall.essential | sendmail -t
 }
 
@@ -334,13 +331,13 @@ update_sys
 enable_BBR
 fix_swap
 install_shadowsocks
-install_lamp_git
-set_folder
-create_vhost80
-get_cert
-check_lets_cron
-create_vhost443
-modify_ssconf
+#install_lamp_git
+#set_folder
+#create_vhost80
+#get_cert
+#check_lets_cron
+#create_vhost443
+#modify_ssconf
 disable_pw_login
 essential_info
 #reboot
