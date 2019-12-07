@@ -136,15 +136,58 @@ fix_swap(){
 
 install_lamp_git(){
     # lamp install prep
-    DBROOTPWDRAND="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbrootpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
 
     apt-get -qq install git
     git clone https://github.com/teddysun/lamp.git
     cd /root/lamp
     chmod +x *.sh
-    ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$DBROOTPWDRAND" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
+    ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$dbrootpwd" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
     mkdir -p /data/www/default.lamp
     mv /data/www/default/* /data/www/default.lamp
+}
+
+install_ospos(){
+    dbname="ospos"
+    dbusername="adminhenry"
+    dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+
+    cd ~
+    rm -rf ${website_root}
+    path_to_ospos_file=$( wget --no-check-certificate -qO- https://github.com/opensourcepos/opensourcepos/releases/latest | grep '\.zip' | grep href | head -n 1 | cut -f2 -d\" )
+    wget --no-check-certificate -qO latest.ospos.zip "https://github.com${path_to_ospos_file}"
+    apt-get -qq install unzip
+    unzip -qq latest.ospos.zip -d ${website_root}
+    rm -f latest.ospos.zip
+
+    # http://www.opensourceposguide.com/guide/gettingstarted/installation
+    # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
+    cd "${website_root}/database"
+    mysql -uroot -p${dbrootpwd} <<EOF
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
+DROP USER IF EXISTS '${dbusername}'@'localhost';
+DROP DATABASE ${dbname};
+CREATE DATABASE ${dbname};
+CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbuserpwd}';
+GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'localhost';
+FLUSH PRIVILEGES;
+use ospos;source ./database.sql;COMMIT;
+quit
+EOF
+    sed -i "/.*MYSQL_USERNAME.*/ s/admin/${dbusername}/" ${website_root}/application/config/database.php
+    sed -i "/.*MYSQL_PASSWORD.*/ s/pointofsale/${dbuserpwd}/" ${website_root}/application/config/database.php
+    sed -i "/.*ENCRYPTION_KEY.*/ s/...$/\'${dbencryptionkey}\';/" ${website_root}/application/config/config.php
+
+# ?????????????????????????????????????????
+
+# ### backup database ### #
+# /usr/local/mysql/bin/mysqldump -u root -p --all-databases > /root/mysql.dump
+# /usr/local/mysql/bin/mysql -u root -p < /root/mysql.dump
+# flush privileges
+
+# ?????????????????????????????????????????
+
 }
 
 #post install
@@ -153,13 +196,14 @@ set_folder(){
     website_root="/data/www/${domain}"
     php_admin_value="php_admin_value open_basedir ${website_root}:/tmp:/var/tmp:/proc"
     mkdir -p ${website_root}
-    cp -f /data/www/default/* ${website_root}
+    cp -f /data/www/default.lamp/index.html ${website_root}
 }
 
 # https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 get_cert(){
-    #enable ssl
-    #sed -i '/.*httpd-ssl.conf.*/ s/^#//' ${apache_location}/conf/httpd.conf
+    # https://lamp.sh/faq.html Q15
+    # enable ssl
+    # sed -i '/.*httpd-ssl.conf.*/ s/^#//' ${apache_location}/conf/httpd.conf
     sed -i 's@#Include conf/extra/httpd-ssl.conf@Include conf/extra/httpd-ssl.conf@g' ${apache_location}/conf/httpd.conf
     /etc/init.d/httpd restart
 
@@ -308,7 +352,14 @@ EOF
 # process essential info
 essential_info(){
     cat /etc/shadowsocks-libev/config.json > /root/autoall.essential
-    echo -e "MySQL root password: $DBROOTPWDRAND" >> /root/autoall.essential
+    cat >> /root/autoall.essential <<-EOF
+
+MySQL credentials:
+root password: ${dbrootpwd}
+ospos userpwd: ${dbuserpwd}
+ospos enc key: ${dbencryptionkey}
+
+EOF
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
     apt-get -qq install sendmail
@@ -331,6 +382,7 @@ enable_BBR
 fix_swap
 install_shadowsocks
 install_lamp_git
+install_ospos
 set_folder
 create_vhost80
 get_cert
