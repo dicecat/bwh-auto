@@ -2,7 +2,7 @@
 
 dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
 website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
-echo 
+echo
 echo "1. ospos"
 echo "2. wordpress"
 read -p "choose 1 or 2: " _choice
@@ -92,7 +92,7 @@ case "${_choice}" in
         install_wp
         ;;
     *)
-        echo "Input error! "
+        echo "Input error! " && exit 1
         ;;
 esac
 
