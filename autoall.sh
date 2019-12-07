@@ -64,8 +64,8 @@ set_pw_enc(){
 
 # update system
 update_sys(){
-    # mv bwh first boot logfile
-    mv /root/virt-sysprep-firstboot.log /usr/lib/virt-sysprep
+    # move bwh first boot logfile
+    # mv /root/virt-sysprep-firstboot.log /usr/lib/virt-sysprep
     # lsb_release -a
     export DEBIAN_FRONTEND=noninteractive
     apt-get update && apt-get -qq -o Dpkg::Options::="--force-confnew" dist-upgrade
@@ -144,8 +144,7 @@ install_lamp_git(){
     chmod +x *.sh
     ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$DBROOTPWDRAND" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
     mkdir -p /data/www/default.lamp
-    mv /data/www/default/*.js /data/www/default.lamp
-    mv /data/www/default/*.php /data/www/default.lamp
+    mv /data/www/default/* /data/www/default.lamp
 }
 
 #post install
@@ -211,8 +210,8 @@ create_vhost80(){
         Require all granted
         DirectoryIndex index.php index.html index.htm
     </Directory>
-    ErrorLog /data/www/${domain}/error.log
-    CustomLog /data/www/${domain}/access.log combined
+    ErrorLog /data/www/${domain}/http_error.log
+    CustomLog /data/www/${domain}/http_access.log combined
 </VirtualHost>
 EOF
 
@@ -249,8 +248,8 @@ create_vhost443(){
         Require all granted
         DirectoryIndex index.php index.html index.htm
     </Directory>
-    ErrorLog  /data/www/${domain}/ssl_error.log
-    CustomLog  /data/www/${domain}/ssl_access.log combined
+    ErrorLog  /data/www/${domain}/https_error.log
+    CustomLog  /data/www/${domain}/https_access.log combined
     SSLEngine on
     SSLCertificateFile ${ssl_certificate}
     SSLCertificateKeyFile ${ssl_certificate_key}
