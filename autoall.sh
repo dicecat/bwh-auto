@@ -326,7 +326,7 @@ EOF
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
     apt-get -qq install sendmail
-    echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Essential info from installation" | cat - /root/autoall.essential | sendmail -t
+    echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Log in to access essential info from installation" | cat - /root/.ssh/id_ed25519 | sendmail -t
 }
 
 ####################
