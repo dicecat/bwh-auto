@@ -317,8 +317,8 @@ essential_info(){
 
 MySQL credentials:
 root password: ${dbrootpwd}
-ospos userpwd: ${dbuserpwd}
-ospos enc key: ${dbencryptionkey}
+${dbname} userpwd: ${dbuserpwd}
+${dbname} enc key: ${dbencryptionkey}
 
 EOF
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
@@ -347,8 +347,8 @@ install_ospos(){
     mysql -uroot -p${dbrootpwd} <<EOF
 REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
 DROP USER IF EXISTS '${dbusername}'@'localhost';
-DROP DATABASE ${dbname};
-CREATE DATABASE ${dbname};
+DROP DATABASE IF EXISTS ${dbname};
+CREATE DATABASE ${dbname} COLLATE utf8mb4_general_ci;
 CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbuserpwd}';
 GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'localhost';
 FLUSH PRIVILEGES;
@@ -370,6 +370,43 @@ EOF
 
 }
 
+# https://wordpress.org/support/article/how-to-install-wordpress/
+install_wp(){
+    dbname="wordpress"
+    dbusername="adminhenry"
+    dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+
+    cd ~
+    rm -rf ${website_root}
+    wget --no-check-certificate -q https://wordpress.org/latest.tar.gz
+    tar -xf latest.tar.gz
+    mv wordpress ${website_root}
+    rm -f latest.tar.gz
+
+    # https://wordpress.org/support/article/how-to-install-wordpress/
+    cd "${website_root}"
+    mysql -uroot -p${dbrootpwd} <<EOF
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
+DROP USER IF EXISTS '${dbusername}'@'localhost';
+DROP DATABASE IF EXISTS ${dbname};
+CREATE DATABASE ${dbname} COLLATE utf8mb4_general_ci;
+CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbuserpwd}';
+GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'localhost';
+FLUSH PRIVILEGES;
+quit
+EOF
+    mv wp-config-sample.php wp-config.php
+    sed -i "/.*DB_NAME.*/ s/database_name_here/${dbname}/" wp-config.php
+    sed -i "/.*DB_USER.*/ s/username_here/${dbusername}/" wp-config.php
+    sed -i "/.*DB_PASSWORD.*/ s/password_here/${dbuserpwd}/" wp-config.php
+    sed -i "/.*DB_CHARSET.*/ s/utf8/utf8mb4_general_ci/" wp-config.php
+    # https://api.wordpress.org/secret-key/1.1/salt/
+    sed -i '/.*put your unique phrase here.*/r'<( wget --no-check-certificate -qO- https://api.wordpress.org/secret-key/1.1/salt/ | grep define ) wp-config.php
+    sed -i '/.*put your unique phrase here.*/' wp-config.php
+    rm -f wget-log*
+}
+
 ####################
 #                  #
 #     Run it!      #
@@ -386,6 +423,7 @@ fix_swap
 install_shadowsocks
 install_lamp_git
 #install_ospos
+#install_wp
 set_folder
 create_vhost80
 get_cert
