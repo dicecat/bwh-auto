@@ -4,8 +4,10 @@
 # @madeye     <https://github.com/madeye>
 # @teddysun   <https://github.com/teddysun>
 
+wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/add-site.sh
 wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/ss-libev.sh
 . ~/ss-libev.sh prep 2>&1 > /dev/null
+chmod +x ~/*.sh
 
 # Set domain
 set_domain(){
