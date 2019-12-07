@@ -96,7 +96,7 @@ case "${_choice}" in
         ;;
 esac
 
-cat >>~/db_info <<EOF
+cat >~/db_info <<EOF
 dbuserpwd= ${dbuserpwd}
 dbencryptionkey= ${dbencryptionkey}
 EOF
