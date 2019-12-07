@@ -97,8 +97,8 @@ case "${_choice}" in
 esac
 
 cat >>~/db_info <<EOF
-dbrootpwd= ${dbrootpwd}
-website_root= ${website_root}
+dbuserpwd= ${dbuserpwd}
+dbencryptionkey= ${dbencryptionkey}
 EOF
 
 cat ~/db_info
