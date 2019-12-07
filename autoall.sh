@@ -320,8 +320,7 @@ essential_info(){
 
 MySQL credentials:
 root password: ${dbrootpwd}
-${dbname} userpwd: ${dbuserpwd}
-${dbname} enc key: ${dbencryptionkey}
+web root: ${website_root}
 
 EOF
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential

@@ -1,7 +1,7 @@
 #/usr/bin/env bash
 
-read -p "dbrootpwd= " dbrootpwd
-read -p "website_root= " website_root
+dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
+website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
 echo 
 echo "1. ospos"
 echo "2. wordpress"
@@ -9,7 +9,7 @@ read -p "choose 1 or 2: " _choice
 
 install_ospos(){
     dbname="ospos"
-    dbusername="adminospos"
+    dbusername="adminhenry"
     dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
     dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
 
@@ -50,7 +50,7 @@ EOF
 # https://wordpress.org/support/article/how-to-install-wordpress/
 install_wp(){
     dbname="wordpress"
-    dbusername="adminwp"
+    dbusername="adminhenry"
     dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
 
     cd ~
@@ -97,8 +97,9 @@ case "${_choice}" in
 esac
 
 cat >~/db_info <<EOF
-dbuserpwd= ${dbuserpwd}
-dbencryptionkey= ${dbencryptionkey}
+${dbname} userpwd: ${dbuserpwd}
+${dbname} enc key: ${dbencryptionkey}
+
 EOF
 
 cat ~/db_info
