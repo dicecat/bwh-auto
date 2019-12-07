@@ -383,7 +383,7 @@ enable_BBR
 fix_swap
 install_shadowsocks
 install_lamp_git
-install_ospos
+#install_ospos
 set_folder
 create_vhost80
 get_cert
