@@ -308,7 +308,7 @@ EOF
 
 # process essential info
 essential_info(){
-    cat /etc/shadowsocks-libev/config.json >> /root/autoall.essential
+    cat /etc/shadowsocks-libev/config.json > /root/autoall.essential
     echo -e "MySQL root password: $DBROOTPWDRAND" >> /root/autoall.essential
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
