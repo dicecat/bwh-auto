@@ -2,6 +2,10 @@
 
 read -p "dbrootpwd= " dbrootpwd
 read -p "website_root= " website_root
+echo 
+echo "1. ospos"
+echo "2. wordpress"
+read -p "choose 1 or 2: " _choice
 
 install_ospos(){
     dbname="ospos"
@@ -80,10 +84,21 @@ EOF
     rm -f wget-log*
 }
 
-#install_ospos
-install_wp
+case "${_choice}" in
+    1)
+        install_ospos
+        ;;
+    2)
+        install_wp
+        ;;
+    *)
+        echo "Input error! "
+        ;;
+esac
 
 cat >>~/db_info <<EOF
 dbrootpwd= ${dbrootpwd}
 website_root= ${website_root}
 EOF
+
+cat ~/db_info
