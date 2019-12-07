@@ -11,6 +11,7 @@ wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/
 set_domain(){
     echo
     echo -e "[${green}Info${plain}] Please wait a few seconds..."
+    echo
     apt-get -qq install host
     clear
     echo -e "[${green}Required: domain${plain}]"
