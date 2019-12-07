@@ -329,7 +329,7 @@ EOF
 
 install_ospos(){
     dbname="ospos"
-    dbusername="adminhenry"
+    dbusername="adminospos"
     dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
     dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
 
@@ -345,7 +345,6 @@ install_ospos(){
     # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
     cd "${website_root}/database"
     mysql -uroot -p${dbrootpwd} <<EOF
-REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
 DROP USER IF EXISTS '${dbusername}'@'localhost';
 DROP DATABASE IF EXISTS ${dbname};
 CREATE DATABASE ${dbname} COLLATE utf8mb4_general_ci;
@@ -360,12 +359,10 @@ EOF
     sed -i "/.*ENCRYPTION_KEY.*/ s/...$/\'${dbencryptionkey}\';/" ${website_root}/application/config/config.php
 
 # ?????????????????????????????????????????
-
 # ### backup database ### #
 # /usr/local/mysql/bin/mysqldump -u root -p --all-databases > /root/mysql.dump
 # /usr/local/mysql/bin/mysql -u root -p < /root/mysql.dump
 # flush privileges
-
 # ?????????????????????????????????????????
 
 }
@@ -373,9 +370,8 @@ EOF
 # https://wordpress.org/support/article/how-to-install-wordpress/
 install_wp(){
     dbname="wordpress"
-    dbusername="adminhenry"
+    dbusername="adminwp"
     dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
-    dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
 
     cd ~
     rm -rf ${website_root}
@@ -387,7 +383,6 @@ install_wp(){
     # https://wordpress.org/support/article/how-to-install-wordpress/
     cd "${website_root}"
     mysql -uroot -p${dbrootpwd} <<EOF
-REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
 DROP USER IF EXISTS '${dbusername}'@'localhost';
 DROP DATABASE IF EXISTS ${dbname};
 CREATE DATABASE ${dbname} COLLATE utf8mb4_general_ci;
@@ -400,10 +395,12 @@ EOF
     sed -i "/.*DB_NAME.*/ s/database_name_here/${dbname}/" wp-config.php
     sed -i "/.*DB_USER.*/ s/username_here/${dbusername}/" wp-config.php
     sed -i "/.*DB_PASSWORD.*/ s/password_here/${dbuserpwd}/" wp-config.php
-    sed -i "/.*DB_CHARSET.*/ s/utf8/utf8mb4_general_ci/" wp-config.php
+    # https://dev.mysql.com/doc/refman/5.6/en/charset-charsets.html
+    # https://www.eversql.com/mysql-utf8-vs-utf8mb4-whats-the-difference-between-utf8-and-utf8mb4/
+    sed -i "/.*DB_CHARSET.*/ s/utf8/utf8mb4/" wp-config.php
     # https://api.wordpress.org/secret-key/1.1/salt/
     sed -i '/.*put your unique phrase here.*/r'<( wget --no-check-certificate -qO- https://api.wordpress.org/secret-key/1.1/salt/ | grep define ) wp-config.php
-    sed -i '/.*put your unique phrase here.*/' wp-config.php
+    sed -i '/.*put your unique phrase here.*/d' wp-config.php
     rm -f wget-log*
 }
 
@@ -423,7 +420,7 @@ fix_swap
 install_shadowsocks
 install_lamp_git
 #install_ospos
-#install_wp
+install_wp
 set_folder
 create_vhost80
 get_cert
