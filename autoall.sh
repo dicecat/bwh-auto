@@ -10,6 +10,9 @@ wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/
 # Set domain
 set_domain(){
     echo
+    echo -e "[${green}Info${plain}] Please wait a few seconds..."
+    apt-get -qq install host
+    clear
     echo -e "[${green}Required: domain${plain}]"
     echo "A valid domain which points to the IP of this VPS is required to obtain SSL certificate."
     echo -e "Please enter ${yellow}your domain${plain}:"
@@ -145,49 +148,6 @@ install_lamp_git(){
     ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$dbrootpwd" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
     mkdir -p /data/www/default.lamp
     mv /data/www/default/* /data/www/default.lamp
-}
-
-install_ospos(){
-    dbname="ospos"
-    dbusername="adminhenry"
-    dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
-    dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
-
-    cd ~
-    rm -rf ${website_root}
-    path_to_ospos_file=$( wget --no-check-certificate -qO- https://github.com/opensourcepos/opensourcepos/releases/latest | grep '\.zip' | grep href | head -n 1 | cut -f2 -d\" )
-    wget --no-check-certificate -qO latest.ospos.zip "https://github.com${path_to_ospos_file}"
-    apt-get -qq install unzip
-    unzip -qq latest.ospos.zip -d ${website_root}
-    rm -f latest.ospos.zip
-
-    # http://www.opensourceposguide.com/guide/gettingstarted/installation
-    # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
-    cd "${website_root}/database"
-    mysql -uroot -p${dbrootpwd} <<EOF
-REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
-DROP USER IF EXISTS '${dbusername}'@'localhost';
-DROP DATABASE ${dbname};
-CREATE DATABASE ${dbname};
-CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbuserpwd}';
-GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'localhost';
-FLUSH PRIVILEGES;
-use ospos;source ./database.sql;COMMIT;
-quit
-EOF
-    sed -i "/.*MYSQL_USERNAME.*/ s/admin/${dbusername}/" ${website_root}/application/config/database.php
-    sed -i "/.*MYSQL_PASSWORD.*/ s/pointofsale/${dbuserpwd}/" ${website_root}/application/config/database.php
-    sed -i "/.*ENCRYPTION_KEY.*/ s/...$/\'${dbencryptionkey}\';/" ${website_root}/application/config/config.php
-
-# ?????????????????????????????????????????
-
-# ### backup database ### #
-# /usr/local/mysql/bin/mysqldump -u root -p --all-databases > /root/mysql.dump
-# /usr/local/mysql/bin/mysql -u root -p < /root/mysql.dump
-# flush privileges
-
-# ?????????????????????????????????????????
-
 }
 
 #post install
@@ -367,13 +327,55 @@ EOF
     echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Essential info from installation" | cat - /root/autoall.essential | sendmail -t
 }
 
+install_ospos(){
+    dbname="ospos"
+    dbusername="adminhenry"
+    dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+
+    cd ~
+    rm -rf ${website_root}
+    path_to_ospos_file=$( wget --no-check-certificate -qO- https://github.com/opensourcepos/opensourcepos/releases/latest | grep '\.zip' | grep href | head -n 1 | cut -f2 -d\" )
+    wget --no-check-certificate -qO latest.ospos.zip "https://github.com${path_to_ospos_file}"
+    apt-get -qq install unzip
+    unzip -qq latest.ospos.zip -d ${website_root}
+    rm -f latest.ospos.zip
+
+    # http://www.opensourceposguide.com/guide/gettingstarted/installation
+    # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
+    cd "${website_root}/database"
+    mysql -uroot -p${dbrootpwd} <<EOF
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${dbusername}'@'localhost';
+DROP USER IF EXISTS '${dbusername}'@'localhost';
+DROP DATABASE ${dbname};
+CREATE DATABASE ${dbname};
+CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbuserpwd}';
+GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'localhost';
+FLUSH PRIVILEGES;
+use ospos;source ./database.sql;COMMIT;
+quit
+EOF
+    sed -i "/.*MYSQL_USERNAME.*/ s/admin/${dbusername}/" ${website_root}/application/config/database.php
+    sed -i "/.*MYSQL_PASSWORD.*/ s/pointofsale/${dbuserpwd}/" ${website_root}/application/config/database.php
+    sed -i "/.*ENCRYPTION_KEY.*/ s/...$/\'${dbencryptionkey}\';/" ${website_root}/application/config/config.php
+
+# ?????????????????????????????????????????
+
+# ### backup database ### #
+# /usr/local/mysql/bin/mysqldump -u root -p --all-databases > /root/mysql.dump
+# /usr/local/mysql/bin/mysql -u root -p < /root/mysql.dump
+# flush privileges
+
+# ?????????????????????????????????????????
+
+}
+
 ####################
 #                  #
 #     Run it!      #
 #                  #
 ####################
 
-clear
 check_environment
 set_domain
 set_email_addr
