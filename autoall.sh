@@ -201,10 +201,11 @@ set_folder(){
 
 # https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 get_cert(){
+    # enable ssl & ws
     # https://lamp.sh/faq.html Q15
-    # enable ssl
-    # sed -i '/.*httpd-ssl.conf.*/ s/^#//' ${apache_location}/conf/httpd.conf
+    # https://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
     sed -i 's@#Include conf/extra/httpd-ssl.conf@Include conf/extra/httpd-ssl.conf@g' ${apache_location}/conf/httpd.conf
+    sed -i '/.*wstunnel.*/ s/^#//' ${apache_location}/conf/httpd.conf
     /etc/init.d/httpd restart
 
     if [ -f /etc/letsencrypt/live/$domain/fullchain.pem ];then
