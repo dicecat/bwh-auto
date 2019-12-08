@@ -1,6 +1,6 @@
-# bwh-auto: scripts to simplify the setup of ss+ws+tls+web
+# bwh-auto: Scripts to simplify the setup of ss+ws+tls+web
 
-## Scripts tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 18.04
+## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 18.04
 
 ## 1. What it does
 
