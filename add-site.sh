@@ -1,13 +1,8 @@
 #/usr/bin/env bash
 
 # run-once-code; for compatibility when sourcing from main
+# put here to receive arg from command line
 _choice_of_web=$1
-if [ -f ~/autoall.essential ]; then
-    dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
-    website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
-else
-    _choice_of_web="_no_ess_file"
-fi
 # end of run-once-code
 
 install_ospos(){
@@ -90,9 +85,20 @@ EOF
 }
 
 choice_of_web(){
+    [ "${_choice_of_web}" == "prep" ] && return 0
+
+    if [ "${_choice_of_web}" != "_main_call" ]; then
+        if [ ! -f ~/autoall.essential ]; then
+            _choice_of_web="_no_ess_file" && return 0
+        else
+            dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
+            website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
+        fi
+    fi
+
     case "${_choice_of_web}" in
-        1|2|prep|_no_ess_file)
-            return 0
+        1|2)
+            return 0;
             ;;
         *)
             echo
@@ -102,6 +108,7 @@ choice_of_web(){
             echo "[Otherwise] Do not install any of the above"
             read -p "Enter your choice of web contents: " _choice_of_web
             echo
+            ;;
     esac
 }
 
