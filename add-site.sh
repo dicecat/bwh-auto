@@ -87,7 +87,7 @@ install_no_web(){
 
 choice_of_web(){
     [ ! -z $1 ] && _choice_of_web=$1 || _choice_of_web="_null"
-    case in "${_choice_of_web}" in
+    case "${_choice_of_web}" in
         1|2|prep)
             return 0
             ;;
