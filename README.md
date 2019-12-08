@@ -18,17 +18,19 @@
 
 ## 3. Usage
 
-1) wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
-2) bash ~/autoall.sh 2>&1 | tee autoall.log
+1) SSH into your VPS
+2) wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB</strong>
+3) bash ~/autoall.sh 2>&1 | tee autoall.log</strong>
+4) Essential info is saved in ~/autoall.essential, which can be accessed after reboot.
 
 ## Changelog
 
 ### v0.2
 
-Add add-site.sh functionality. Optional to add OSPOS or WordPress web contents. <br />
+Add add-site.sh functionality. Optional to add OSPOS or WordPress web contents. </br>
 Either add-site.sh or ss-libev.sh should also work independently of autoall.sh.
 
 ### v0.1
 
-Initial scripts to automatically install ss, plugin, lamp, and configure ws+tls behind web service. <br /> 
+Initial scripts to automatically install ss, plugin, lamp, and configure ws+tls behind web service. </br>
 By default, the script installs lastest version of lamp stack.
