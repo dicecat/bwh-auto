@@ -2,6 +2,7 @@
 
 dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
 website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
+_choice_of_web=$1
 
 install_ospos(){
     dbname="ospos"
@@ -86,7 +87,7 @@ install_no_web(){
 }
 
 choice_of_web(){
-    [ ! -z $1 ] && _choice_of_web=$1 || _choice_of_web="_null"
+    [ -z "${_choice_of_web}" ] && _choice_of_web="_null"
     case "${_choice_of_web}" in
         1|2|prep)
             return 0
