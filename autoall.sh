@@ -40,7 +40,7 @@ set_email_addr(){
     echo -e "[${green}Optional: email address${plain}]"
     echo "A valid email address is required if you need to disable pw and use key pairs to login."
     echo "The private key will be sent to your email after this script ends."
-    echo "${red}You will lose access to and have to reset your VPS if the private key is lost.${plain}"
+    echo -e "${red}You will lose access to and have to reset your VPS if the private key is lost.${plain}"
     echo "Other essential info will be saved to ~/autoall.essential."
     echo "Please make 100% sure you understand the notes above. Otherwise just skip..."
     echo -e "Please enter your ${yellow}email address${plain} (Press ${yellow}Enter${plain} to skip):"
