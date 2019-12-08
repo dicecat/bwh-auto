@@ -94,10 +94,10 @@ choice_of_web(){
             ;;
         *)
             echo
-            echo "1: ospos"
-            echo "2: wordpress"
-            echo "otherwise: do not install any of the above"
-            read -p "Enter your choice: " _choice_of_web
+            echo "1: OSPOS"
+            echo "2: WordPress"
+            echo "Otherwise: do not install any of the above"
+            read -p "Enter your choice of web contents: " _choice_of_web
     esac
 }
 
