@@ -12,7 +12,7 @@
 ## 2. Requirements
 
 1) a VPS running Ubuntu, might work on Debian;
-2) a valid domain pointed to the IP address of your VPS;
+2) a valid domain pointing to the IP address of your VPS;
 3) (optional) an email address to receive private key;
 4) (optional if chosen 3) set up a password to private key.
 
