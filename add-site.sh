@@ -1,8 +1,14 @@
 #/usr/bin/env bash
 
-dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
-website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
+# run-once-code; for compatibility when sourcing from main
 _choice_of_web=$1
+if [ -f ~/autoall.essential ]; then
+    dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
+    website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
+else
+    _choice_of_web="_no_ess_file"
+fi
+# end of run-once-code
 
 install_ospos(){
     dbname="ospos"
@@ -34,6 +40,7 @@ EOF
     sed -i "/.*MYSQL_USERNAME.*/ s/admin/${dbusername}/" ${website_root}/application/config/database.php
     sed -i "/.*MYSQL_PASSWORD.*/ s/pointofsale/${dbuserpwd}/" ${website_root}/application/config/database.php
     sed -i "/.*ENCRYPTION_KEY.*/ s/...$/\'${dbencryptionkey}\';/" ${website_root}/application/config/config.php
+    echo "OSPOS installed. Access your website to complete the installation."
 
 # ?????????????????????????????????????????
 # ### backup database ### #
@@ -79,25 +86,22 @@ EOF
     sed -i '/.*put your unique phrase here.*/r'<( wget --no-check-certificate -qO- https://api.wordpress.org/secret-key/1.1/salt/ | grep define ) wp-config.php
     sed -i '/.*put your unique phrase here.*/d' wp-config.php
     rm -f wget-log*
-}
-
-# dummy
-install_no_web(){
-    echo "Skipped installing web for now."
+    echo "WordPress installed. Access your website to complete the installation."
 }
 
 choice_of_web(){
-    [ -z "${_choice_of_web}" ] && _choice_of_web="_null"
     case "${_choice_of_web}" in
-        1|2|prep)
+        1|2|prep|_no_ess_file)
             return 0
             ;;
         *)
             echo
-            echo "1: OSPOS"
-            echo "2: WordPress"
-            echo "Otherwise: do not install any of the above"
+            echo "The following web contents are available:"
+            echo "[1] OSPOS"
+            echo "[2] WordPress"
+            echo "[Otherwise] Do not install any of the above"
             read -p "Enter your choice of web contents: " _choice_of_web
+            echo
     esac
 }
 
@@ -109,8 +113,13 @@ install_choice_of_web(){
         2)
             install_wp
             ;;
+        prep)
+            ;;
+        _no_ess_file)
+            echo "~/autoall.essential not found. Skip installing web for now."
+            ;;
         *)
-            install_no_web
+            echo "No valid choice of web contents. Skip installing web for now."
             ;;
     esac
 }

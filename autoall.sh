@@ -340,23 +340,5 @@ EOF
 #                  #
 ####################
 
-check_environment
-set_domain
-set_email_addr
-set_pw_enc
 choice_of_web
-update_sys
-enable_BBR
-fix_swap
-install_shadowsocks
-install_lamp_git
-set_folder
-create_vhost80
-get_cert
-check_lets_cron
-create_vhost443
-modify_ssconf
-disable_pw_login
-essential_info
 install_choice_of_web
-reboot
