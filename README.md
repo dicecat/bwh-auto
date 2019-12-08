@@ -26,3 +26,5 @@ Either add-site.sh or ss-libev.sh should also work independent of autoall.sh.
 ### v0.1
 
 Initial scripts to automatically install ss, plugin, lamp, and configure ws+tls behind web service.
+
+By default, the script installs lastest version or lamp stack. 
