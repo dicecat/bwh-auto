@@ -3,7 +3,8 @@
 1. What it does
 1) install shadowsocks-libev and v2ray-plugin;
 2) install lamp of the latest version;
-3) config ss over ws+tls behind web service.
+3) config ss over ws+tls behind web service;
+4) (optional) install web contents (OSPOS or WordPress);
 
 2. Requirements
 1) a valid domain pointed to the IP address of your VPS;
@@ -13,4 +14,3 @@
 3. Usage
 1) wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
 2) bash ~/autoall.sh 2>&1 | tee autoall.log
-
