@@ -19,12 +19,10 @@
 
 ### v0.2
 
-Add add-site.sh functionality. Optional to add OSPOS or WordPress web contents.
-
+Add add-site.sh functionality. Optional to add OSPOS or WordPress web contents. <br /> 
 Either add-site.sh or ss-libev.sh should also work independent of autoall.sh.
 
 ### v0.1
 
-Initial scripts to automatically install ss, plugin, lamp, and configure ws+tls behind web service.
-
+Initial scripts to automatically install ss, plugin, lamp, and configure ws+tls behind web service. <br /> 
 By default, the script installs lastest version or lamp stack. 
