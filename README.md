@@ -19,7 +19,7 @@
 ## 3. Usage
 
 1) SSH into your VPS
-2) wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB</strong>
+2) wget --no-check-certificate -qO ~/autoall.sh <https://git.io/JeyRB></strong>
 3) bash ~/autoall.sh 2>&1 | tee autoall.log</strong>
 4) Essential info is saved in ~/autoall.essential, which can be accessed after reboot.
 
