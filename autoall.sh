@@ -39,9 +39,10 @@ set_email_addr(){
     echo
     echo -e "[${green}Optional: email address${plain}]"
     echo "A valid email address is required if you need to disable pw and use key pairs to login."
-    echo "Essential info will be sent to your email after this script ends."
-    echo "You will not be able to login without those essential info."
-    echo "You will be asked to set a password after you set the email address."
+    echo "The private key will be sent to your email after this script ends."
+    echo "${red}You will lose access to and have to reset your VPS if the private key is lost.${plain}"
+    echo "Other essential info will be saved to ~/autoall.essential."
+    echo "Please make 100% sure you understand the notes above. Otherwise just skip..."
     echo -e "Please enter your ${yellow}email address${plain} (Press ${yellow}Enter${plain} to skip):"
     read email_addr
     [ -z "${email_addr}" ] && return 0
@@ -316,6 +317,7 @@ EOF
 
 # process essential info
 essential_info(){
+    # save essential info to autoall.essential
     cat /etc/shadowsocks-libev/config.json > /root/autoall.essential
     cat >> /root/autoall.essential <<-EOF
 
@@ -326,6 +328,8 @@ web root: ${website_root}
 EOF
     [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
+
+    # email private key to ssh into server after reboot
     apt-get -qq install sendmail
     echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Log in to access essential info from installation" | cat - /root/.ssh/id_ed25519 | sendmail -t
 }
