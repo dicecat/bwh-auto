@@ -7,6 +7,7 @@
 wget --no-check-certificate -qO ~/add-site.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/add-site.sh
 wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/ss-libev.sh
 . ~/ss-libev.sh prep 2>&1 > /dev/null
+. ~/add-site.sh prep
 chmod +x ~/*.sh
 
 # Set domain
@@ -335,21 +336,7 @@ EOF
 #                  #
 ####################
 
-check_environment
-set_domain
-set_email_addr
-set_pw_enc
-update_sys
-enable_BBR
-fix_swap
-install_shadowsocks
-install_lamp_git
-set_folder
-create_vhost80
-get_cert
-check_lets_cron
-create_vhost443
-modify_ssconf
-disable_pw_login
-essential_info
-reboot
+echo "here1\n"
+choice_of_web
+echo "here2\n"
+install_choice_of_web

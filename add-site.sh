@@ -2,10 +2,6 @@
 
 dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
 website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
-echo
-echo "1. ospos"
-echo "2. wordpress"
-read -p "choose 1 or 2: " _choice
 
 install_ospos(){
     dbname="ospos"
@@ -75,8 +71,8 @@ EOF
     sed -i "/.*DB_NAME.*/ s/database_name_here/${dbname}/" wp-config.php
     sed -i "/.*DB_USER.*/ s/username_here/${dbusername}/" wp-config.php
     sed -i "/.*DB_PASSWORD.*/ s/password_here/${dbuserpwd}/" wp-config.php
-    # https://dev.mysql.com/doc/refman/5.6/en/charset-charsets.html
     # https://www.eversql.com/mysql-utf8-vs-utf8mb4-whats-the-difference-between-utf8-and-utf8mb4/
+    # https://dev.mysql.com/doc/refman/5.6/en/charset-charsets.html
     sed -i "/.*DB_CHARSET.*/ s/utf8/utf8mb4/" wp-config.php
     # https://api.wordpress.org/secret-key/1.1/salt/
     sed -i '/.*put your unique phrase here.*/r'<( wget --no-check-certificate -qO- https://api.wordpress.org/secret-key/1.1/salt/ | grep define ) wp-config.php
@@ -84,22 +80,39 @@ EOF
     rm -f wget-log*
 }
 
-case "${_choice}" in
-    1)
-        install_ospos
-        ;;
-    2)
-        install_wp
-        ;;
-    *)
-        echo "Input error! " && exit 1
-        ;;
-esac
+# dummy
+install_no_web(){
+    echo "Skipped installing web for now."
+}
 
-cat >~/db_info <<EOF
-${dbname} userpwd: ${dbuserpwd}
-${dbname} enc key: ${dbencryptionkey}
+choice_of_web(){
+    [ ! -z $1 ] && _choice_of_web=$1 || _choice_of_web="_null"
+    case in "$_choice_of_web" in
+        1|2|prep)
+            return 0
+            ;;
+        *)
+            echo
+            echo "1: ospos"
+            echo "2: wordpress"
+            echo "otherwise: do not install any of the above"
+            read -p "Enter your choice: " _choice_of_web
+    esac
+}
 
-EOF
+install_choice_of_web(){
+    case "${_choice_of_web}" in
+        1)
+            install_ospos
+            ;;
+        2)
+            install_wp
+            ;;
+        *)
+            install_no_web
+            ;;
+    esac
+}
 
-cat ~/db_info
+choice_of_web
+install_choice_of_web
