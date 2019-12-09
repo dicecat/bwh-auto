@@ -27,7 +27,9 @@
 
 ### v0.2
 
-Add add-site.sh functionality. Optional to add OSPOS or WordPress web contents.  
+Add add-site.sh functionality.  
+Optional to add OSPOS or WordPress web contents.  
+Optional to ban direct IP access, preventing WordPress from exposing your ip & domain.  
 Either add-site.sh or ss-libev.sh should also work independently after autoall.sh runs.
 
 ### v0.1
