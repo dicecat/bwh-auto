@@ -90,8 +90,8 @@ ban_direct_access(){
 </VirtualHost>
 EOF
     service httpd restart
-    echo "Set encryption mode to Flexible under SSL/TLS section in CloudFlare."
-    echo "And enable Always Use HTTPS option. Then it should work."
+    echo "In CloudFlare, set encryption mode to Flexible under SSL/TLS section."
+    echo "And enable Always Use HTTPS option. Then it should work. Reboot if not."
 }
 
 choice_of_web(){
