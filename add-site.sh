@@ -85,6 +85,8 @@ choice_of_web(){
         else
             dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
             website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
+            domain=$( echo -e "${website_root}" | cut -f4 -d\/ )
+            apache_location=/usr/local/apache
         fi
     fi
 
@@ -97,7 +99,8 @@ choice_of_web(){
             echo "The following web contents are available:"
             echo "[1] OSPOS"
             echo "[2] WordPress"
-            echo "[Otherwise] Do not install any of the above"
+            echo "[3] Do not install & just ban direct IP access"
+            echo "[Otherwise] Do nothing & just skip any of the above"
             read -p "Enter your choice of web contents: " _choice_of_web
             echo
             ;;
@@ -112,6 +115,9 @@ install_choice_of_web(){
         2)
             install_wp
             ;;
+        3)
+            ban_direct_access
+            ;;
         prep)
             ;;
         _no_ess_file)
@@ -121,6 +127,23 @@ install_choice_of_web(){
             echo "No valid choice of web contents. Skip installing web for now."
             ;;
     esac
+}
+
+# protect your ip & domain while using CDN
+ban_direct_access(){
+    # vps_ip=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    # remove http redirect on domain.conf
+    sed -i "s/\(.*Redirect.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
+    sed -i "s/\(.*Rewrite.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
+    cat >${apache_location}/conf/vhost/direct.conf << EOF
+<VirtualHost *:443>
+    ServerName default
+    <Location />
+        Require all denied
+    </Location>
+</VirtualHost>
+EOF
+    service httpd restart
 }
 
 choice_of_web

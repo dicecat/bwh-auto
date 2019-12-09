@@ -334,24 +334,6 @@ EOF
     echo -e "From: admin <admin@${domain}>\nTo: ${email_addr}\nSubject: Log in to access essential info from installation" | cat - /root/.ssh/id_ed25519 | sendmail -t
 }
 
-ban_direct_access(){
-    vps_ip=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    cat >${apache_location}/conf/vhost/direct.conf << EOF
-<VirtualHost *:80>
-ServerName ${vps_ip}
-Redirect 403 /
-<Location />
-	Require all denied
-</Location>
-</VirtualHost>
-
-<VirtualHost *:443>
-ServerName ${vps_ip}
-Redirect permanent / http://${vps_ip}
-</VirtualHost>
-EOF
-}
-
 ####################
 #                  #
 #     Run it!      #
@@ -377,5 +359,4 @@ modify_ssconf
 disable_pw_login
 essential_info
 install_choice_of_web
-ban_direct_access
 reboot
