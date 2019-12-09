@@ -82,11 +82,23 @@ ban_direct_access(){
     sed -i "s/\(.*Redirect.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
     sed -i "s/\(.*Rewrite.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
     cat >${apache_location}/conf/vhost/direct.conf << EOF
+<VirtualHost *:80>
+    ServerName default
+    <Location />
+        Require all denied
+    </Location>
+    <Directory />
+        Require all denied
+    </Directory>
+</VirtualHost>
 <VirtualHost *:443>
     ServerName default
     <Location />
         Require all denied
     </Location>
+    <Directory />
+        Require all denied
+    </Directory>
 </VirtualHost>
 EOF
     service httpd restart
