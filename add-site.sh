@@ -5,6 +5,8 @@
 _choice_of_web=$1
 # end of run-once-code
 
+# http://www.opensourceposguide.com/guide/gettingstarted/installation
+# https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
 install_ospos(){
     dbname="ospos"
     dbusername="adminhenry"
@@ -19,8 +21,6 @@ install_ospos(){
     unzip -qq latest.ospos.zip -d ${website_root}
     rm -f latest.ospos.zip
 
-    # http://www.opensourceposguide.com/guide/gettingstarted/installation
-    # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
     cd "${website_root}/database"
     mysql -uroot -p${dbrootpwd} <<EOF
 DROP USER IF EXISTS '${dbusername}'@'localhost';
@@ -51,7 +51,6 @@ install_wp(){
     mv wordpress ${website_root}
     rm -f latest.tar.gz
 
-    # https://wordpress.org/support/article/how-to-install-wordpress/
     cd "${website_root}"
     mysql -uroot -p${dbrootpwd} <<EOF
 DROP USER IF EXISTS '${dbusername}'@'localhost';
@@ -76,6 +75,23 @@ EOF
     echo "WordPress installed. Access your website to complete the installation."
 }
 
+# protect your ip & domain while using CDN
+ban_direct_access(){
+    # vps_ip=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    # remove http redirect on domain.conf
+    sed -i "s/\(.*Redirect.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
+    sed -i "s/\(.*Rewrite.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
+    cat >${apache_location}/conf/vhost/direct.conf << EOF
+<VirtualHost *:443>
+    ServerName default
+    <Location />
+        Require all denied
+    </Location>
+</VirtualHost>
+EOF
+    service httpd restart
+}
+
 choice_of_web(){
     [ "${_choice_of_web}" == "prep" ] && return 0
 
@@ -91,7 +107,7 @@ choice_of_web(){
     fi
 
     case "${_choice_of_web}" in
-        1|2)
+        1|2|3)
             return 0;
             ;;
         *)
@@ -127,23 +143,6 @@ install_choice_of_web(){
             echo "No valid choice of web contents. Skip installing web for now."
             ;;
     esac
-}
-
-# protect your ip & domain while using CDN
-ban_direct_access(){
-    # vps_ip=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    # remove http redirect on domain.conf
-    sed -i "s/\(.*Redirect.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
-    sed -i "s/\(.*Rewrite.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
-    cat >${apache_location}/conf/vhost/direct.conf << EOF
-<VirtualHost *:443>
-    ServerName default
-    <Location />
-        Require all denied
-    </Location>
-</VirtualHost>
-EOF
-    service httpd restart
 }
 
 choice_of_web
