@@ -102,7 +102,7 @@ ban_direct_access(){
 </VirtualHost>
 EOF
     service httpd restart
-    echo "In CloudFlare, set encryption mode to Flexible under SSL/TLS section."
+    echo "In SSL/TLS app of CloudFlare, set encryption mode to Flexible."
     echo "And enable Always Use HTTPS option. Then it should work. Reboot if not."
 }
 
@@ -129,7 +129,7 @@ choice_of_web(){
             echo "The following web contents are available:"
             echo "[1] OSPOS"
             echo "[2] WordPress"
-            echo "[3] Do not install & just ban direct IP access"
+            echo "[3] Ban direct IP access & work with CloudFlare."
             echo "[Otherwise] Do nothing & just skip any of the above"
             read -p "Enter your choice of web contents: " _choice_of_web
             echo
