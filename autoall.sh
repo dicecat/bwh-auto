@@ -151,7 +151,8 @@ install_lamp_git(){
     git clone https://github.com/teddysun/lamp.git
     cd /root/lamp
     chmod +x *.sh
-    ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$dbrootpwd" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
+    ./lamp.sh --apache_option 1 --db_option 10 --db_root_pwd "$dbrootpwd" --php_option 5 --kodexplorer_option 2
+    # ./lamp.sh --apache_option 1 --db_option 10 --db_root_pwd "$dbrootpwd" --php_option 5 --db_manage_modules phpmyadmin --kodexplorer_option 1
     # check lamp install status
     [ ! "$(command -v php)" ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
     mkdir -p /data/www/default.lamp
