@@ -153,7 +153,7 @@ install_lamp_git(){
     chmod +x *.sh
     ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$dbrootpwd" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
     # check lamp install status
-    [ $? != 0 ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
+    [ ! "$(command -v php)" ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
     mkdir -p /data/www/default.lamp
     mv /data/www/default/* /data/www/default.lamp
 }
