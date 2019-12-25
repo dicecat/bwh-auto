@@ -2,26 +2,26 @@
 
 ## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 18.04
 
-## 1. Usage
-
-1) SSH into your VPS
-2) **wget --no-check-certificate -qO ~/autoall.sh <https://git.io/JeyRB>**
-3) **bash ~/autoall.sh 2>&1 | tee autoall.log**
-4) Essential info in ~/autoall.essential can be accessed after reboot.
-
-## 2. Features
+## What it does
 
 1) install shadowsocks-libev and v2ray-plugin;
 2) install lamp stack of the latest version;
 3) config ss over ws+tls behind web service;
 4) (optional) install web contents (OSPOS or WordPress).
 
-## 3. Requirements
+## Requirements
 
 1) a VPS running Ubuntu, might work on Debian;
 2) a valid domain pointing to the IP address of your VPS;
 3) (optional) an email address to receive private key;
 4) (optional if chosen 3) set up a password to private key.
+
+## Usage
+
+1) SSH into your VPS
+2) **wget --no-check-certificate -qO ~/autoall.sh <https://git.io/JeyRB>**
+3) **bash ~/autoall.sh 2>&1 | tee autoall.log**
+4) Essential info in ~/autoall.essential can be accessed after reboot.
 
 ## Changelog
 
