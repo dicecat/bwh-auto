@@ -2,37 +2,37 @@
 
 ## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 18.04
 
-## 1. What it does
-
-1) install shadowsocks-libev and v2ray-plugin;
-2) install lamp stack of the latest version;
-3) config ss over ws+tls behind web service;
-4) (optional) install web contents (OSPOS or WordPress).
-
-## 2. Requirements
-
-1) a VPS running Ubuntu, might work on Debian;
-2) a valid domain pointing to the IP address of your VPS;
-3) (optional) an email address to receive private key;
-4) (optional if chosen 3) set up a password to private key.
-
-## 3. Usage
+## 1. Usage
 
 1) SSH into your VPS
 2) **wget --no-check-certificate -qO ~/autoall.sh <https://git.io/JeyRB>**
 3) **bash ~/autoall.sh 2>&1 | tee autoall.log**
 4) Essential info in ~/autoall.essential can be accessed after reboot.
 
+## 2. Features
+
+1) install shadowsocks-libev and v2ray-plugin;
+2) install lamp stack of the latest version;
+3) config ss over ws+tls behind web service;
+4) (optional) install web contents (OSPOS or WordPress).
+
+## 3. Requirements
+
+1) a VPS running Ubuntu, might work on Debian;
+2) a valid domain pointing to the IP address of your VPS;
+3) (optional) an email address to receive private key;
+4) (optional if chosen 3) set up a password to private key.
+
 ## Changelog
 
-### v0.2
+### 20191208
 
 Add add-site.sh functionality.  
 Optional to add OSPOS or WordPress web contents.  
 Optional to ban direct IP access, preventing WordPress from exposing your IP & domain.  
 Either add-site.sh or ss-libev.sh should also work independently after autoall.sh runs.
 
-### v0.1
+### 20191206
 
 Initial scripts to automatically install ss, plugin, lamp, and configure ws+tls behind web service.  
 By default, the script installs lastest version of lamp stack.
