@@ -151,8 +151,7 @@ install_lamp_git(){
     git clone https://github.com/teddysun/lamp.git
     cd /root/lamp
     chmod +x *.sh
-    ./lamp.sh --apache_option 1 --db_option 10 --db_root_pwd "$dbrootpwd" --php_option 5 --kodexplorer_option 2
-    # ./lamp.sh --apache_option 1 --db_option 10 --db_root_pwd "$dbrootpwd" --php_option 5 --db_manage_modules phpmyadmin --kodexplorer_option 1
+    ./lamp.sh --apache_option 1 --db_option 10 --db_root_pwd "$dbrootpwd" --php_option 5 --db_manage_modules phpmyadmin --kodexplorer_option 1
     # check lamp install status
     [ ! "$(command -v php)" ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
     mkdir -p /data/www/default.lamp
@@ -178,7 +177,7 @@ get_cert(){
     /etc/init.d/httpd restart
 
     if [ -f /etc/letsencrypt/live/$domain/fullchain.pem ];then
-        echo "[${green}Info${plain}] cert already got, skip."
+        echo -e "[${green}Info${plain}] cert already got, skip."
     else
         apt-get update
             apt-get -qq install software-properties-common
@@ -188,7 +187,7 @@ get_cert(){
         apt-get -qq install certbot 
         certbot certonly --agree-tos --register-unsafely-without-email --webroot -w ${website_root} -d ${domain}
         if [ ! -f /etc/letsencrypt/live/$domain/fullchain.pem ];then
-            echo "[${red}Error${plain}] Failed to get cert."
+            echo -e "[${red}Error${plain}] Failed to get cert."
             exit 1
         fi
         ssl_certificate="/etc/letsencrypt/live/${domain}/fullchain.pem"
