@@ -16,6 +16,7 @@ set_domain(){
     echo -e "[${green}Info${plain}] Please wait a few seconds..."
     echo
     apt-get -qq install host
+    [ ! "$(command -v host)" ] && echo -e "[${red}Error${plain}] command host not found! Please try again." && exit 1
     clear
     echo -e "[${green}Required: domain${plain}]"
     echo "A valid domain which points to the IP of this VPS is required to obtain SSL certificate."
@@ -151,6 +152,8 @@ install_lamp_git(){
     cd /root/lamp
     chmod +x *.sh
     ./lamp.sh --apache_option 1 --db_option 4 --db_root_pwd "$dbrootpwd" --php_option 5 --phpmyadmin_option 2 --kodexplorer_option 2
+    # check lamp install status
+    [ $? != 0 ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
     mkdir -p /data/www/default.lamp
     mv /data/www/default/* /data/www/default.lamp
 }
