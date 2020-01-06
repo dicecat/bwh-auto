@@ -322,7 +322,8 @@ EOF
 # process essential info
 essential_info(){
     # save essential info to autoall.essential
-    cat /etc/shadowsocks-libev/config.json > /root/autoall.essential
+    # cat /etc/shadowsocks-libev/config.json > /root/autoall.essential
+    print_ss_info > /root/autoall.essential
     cat >> /root/autoall.essential <<-EOF
 
 MySQL credentials:
