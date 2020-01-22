@@ -20,12 +20,15 @@
 
 SSH into your VPS and run commands:  
 
-1) **wget --no-check-certificate -qO ~/autoall.sh <https://git.io/JeyRB>**
-2) **bash ~/autoall.sh 2>&1 | tee autoall.log**  
-
+```
+wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
+bash ~/autoall.sh 2>&1 | tee autoall.log
+```
 After reboot, SSH into VPS and access essential info by:  
 
-1) **cat ~/autoall.essential**  
+```
+cat ~/autoall.essential
+```
 
 ## Changelog
 
