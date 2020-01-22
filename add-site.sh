@@ -127,9 +127,9 @@ choice_of_web(){
         *)
             echo
             echo "The following web contents are available:"
-            echo "[1] OSPOS"
-            echo "[2] WordPress"
-            echo "[3] Ban direct IP access & work with CloudFlare."
+            echo "[1] WordPress"
+            # echo "[2] OSPOS"
+            echo "[0] Ban direct IP access & work with CloudFlare."
             echo "[Otherwise] Do nothing & just skip any of the above"
             read -p "Enter your choice of web contents: " _choice_of_web
             echo
@@ -140,12 +140,12 @@ choice_of_web(){
 install_choice_of_web(){
     case "${_choice_of_web}" in
         1)
-            install_ospos
-            ;;
-        2)
             install_wp
             ;;
-        3)
+        2)
+            install_ospos
+            ;;
+        0)
             ban_direct_access
             ;;
         prep)
