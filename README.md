@@ -35,7 +35,7 @@ cat ~/autoall.essential
 ### 20191208
 
 Add add-site.sh functionality.  
-Optional to add OSPOS or WordPress web contents.  
+Optional to add WordPress web contents.  
 Optional to ban direct IP access, preventing WordPress from exposing your IP & domain.  
 Either add-site.sh or ss-libev.sh should also work independently after autoall.sh runs.
 
