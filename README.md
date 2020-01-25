@@ -7,7 +7,7 @@
 1) install shadowsocks-libev and v2ray-plugin;
 2) install lamp stack of the latest version;
 3) config ss over ws+tls behind web service;
-4) (optional) install web contents (OSPOS or WordPress).
+4) (optional) install web contents (WordPress).
 
 ## Requirements
 
