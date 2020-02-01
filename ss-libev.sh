@@ -70,9 +70,9 @@ disable_selinux(){
 }
 
 install_prepare(){
-    if [ -s /etc/shadowsocks-libev/config.json ] then
-        shadowsockspwd="$( grep password /etc/shadowsocks-libev/config.json |cut -f4 -d\" )"
-        shadowsocksport="$( grep server_port /etc/shadowsocks-libev/config.json |cut -f2 -d: |cut -f1 -d, )"
+    if [ -s /etc/shadowsocks-libev/config.json ]; then
+        shadowsockspwd=`grep password /etc/shadowsocks-libev/config.json |cut -f4 -d\"`
+        shadowsocksport=`grep server_port /etc/shadowsocks-libev/config.json |cut -f2 -d: |cut -f1 -d,`
     else
         shadowsockspwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
         shadowsocksport=$(shuf -i 9000-19999 -n 1)
