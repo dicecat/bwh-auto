@@ -71,6 +71,7 @@ disable_selinux(){
 
 install_prepare(){
     if [ -s /etc/shadowsocks-libev/config.json ]; then
+        cp -f /etc/shadowsocks-libev/config.json /etc/shadowsocks-libev/config.json.backup
         shadowsockspwd=`grep password /etc/shadowsocks-libev/config.json |cut -f4 -d\"`
         shadowsocksport=`grep server_port /etc/shadowsocks-libev/config.json |cut -f2 -d: |cut -f1 -d,`
     else
@@ -126,6 +127,10 @@ download_files(){
 
 config_shadowsocks(){
     # /etc/shadowsocks-libev/config.json
+    if [ -s /etc/shadowsocks-libev/config.json.backup ]; then
+        mv /etc/shadowsocks-libev/config.json.backup /etc/shadowsocks-libev/config.json
+        return 0
+    fi
     mkdir -p /etc/shadowsocks-libev
     cat > /etc/shadowsocks-libev/config.json<<-EOF
 {
