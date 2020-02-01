@@ -21,6 +21,7 @@ install_ospos(){
     unzip -qq latest.ospos.zip -d ${website_root}
     rm -f latest.ospos.zip
 
+    [ -f /usr/local/mariadb/data/ospos ] && rm -f /usr/local/mariadb/data/ospos/*
     cd "${website_root}/database"
     mysql -uroot -p${dbrootpwd} <<EOF
 DROP USER IF EXISTS '${dbusername}'@'localhost';
