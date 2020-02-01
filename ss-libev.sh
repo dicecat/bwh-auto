@@ -70,8 +70,13 @@ disable_selinux(){
 }
 
 install_prepare(){
-    shadowsockspwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
-    shadowsocksport=$(shuf -i 9000-19999 -n 1)
+    if [ -s /etc/shadowsocks-libev/config.json ] then
+        shadowsockspwd=`grep password /etc/shadowsocks-libev/config.json |cut -f4 -d\"`
+        shadowsocksport=`grep server_port /etc/shadowsocks-libev/config.json |cut -f2 -d: |cut -f1 -d,`
+    else
+        shadowsockspwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+        shadowsocksport=$(shuf -i 9000-19999 -n 1)
+    fi
     # pick=13
     shadowsockscipher=${common_ciphers[12]}
 }
@@ -80,8 +85,9 @@ get_latest_version(){
     libsodium_file="libsodium-stable"
     libsodium_url="https://download.libsodium.org/libsodium/releases/LATEST.tar.gz"
 
-    mbedtls_file="mbedtls-2.16.3"
-    mbedtls_url="https://tls.mbed.org/download/mbedtls-2.16.3-gpl.tgz"
+    mbedtsl_ver=`curl -sL https://tls.mbed.org/download-archive |grep gpl.tgz |grep mbedtls |head -n1 |cut -f2 -d\" |cut -f4 -d\/ |cut -f2 -d-`
+    mbedtls_file="mbedtls-${mbedtsl_ver}"
+    mbedtls_url="https://tls.mbed.org/download/${mbedtls_file}-gpl.tgz"
 
     shadowsocks_libev_file=$(wget -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep name | grep tar | cut -f4 -d\" | cut -f1-3 -d.)
     shadowsocks_libev_url=$(wget -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep browser_download_url | cut -f4 -d\")
@@ -157,36 +163,28 @@ install_dependencies(){
 }
 
 install_libsodium(){
-    if [ ! -f /usr/lib/libsodium.a ]; then
-        cd ${cur_dir}
-        tar xf ${libsodium_file}.tar.gz
-        cd ${libsodium_file}
-        ./configure --prefix=/usr && make && make install
-        if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Failed to install ${libsodium_file}."
-            install_cleanup
-            exit 1
-        fi
-    else
-        echo -e "[${green}Info${plain}] ${libsodium_file} already installed."
+    cd ${cur_dir}
+    tar xf ${libsodium_file}.tar.gz
+    cd ${libsodium_file}
+    ./configure --prefix=/usr && make && make install
+    if [ $? -ne 0 ]; then
+        echo -e "[${red}Error${plain}] Failed to install ${libsodium_file}."
+        install_cleanup
+        exit 1
     fi
     ldconfig
 }
 
 install_mbedtls(){
-    if [ ! -f /usr/lib/libmbedtls.a ]; then
-        cd ${cur_dir}
-        tar xf ${mbedtls_file}-gpl.tgz
-        cd ${mbedtls_file}
-        make SHARED=1 CFLAGS=-fPIC
-        make DESTDIR=/usr install
-        if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Failed to install ${mbedtls_file}."
-            install_cleanup
-            exit 1
-        fi
-    else
-        echo -e "[${green}Info${plain}] ${mbedtls_file} already installed."
+    cd ${cur_dir}
+    tar xf ${mbedtls_file}-gpl.tgz
+    cd ${mbedtls_file}
+    make SHARED=1 CFLAGS=-fPIC
+    make DESTDIR=/usr install
+    if [ $? -ne 0 ]; then
+        echo -e "[${red}Error${plain}] Failed to install ${mbedtls_file}."
+        install_cleanup
+        exit 1
     fi
     ldconfig
 }
@@ -209,30 +207,25 @@ install_ss(){
 
 # Install v2ray-plugin
 install_v2(){
+    cd ${cur_dir}
+    tar xf $v2_file
+    mv v2ray-plugin_linux_amd64 /usr/local/bin/v2ray-plugin
     if [ ! -f /usr/local/bin/v2ray-plugin ];then
-        cd ${cur_dir}
-        tar xf $v2_file
-        mv v2ray-plugin_linux_amd64 /usr/local/bin/v2ray-plugin
-        if [ ! -f /usr/local/bin/v2ray-plugin ];then
-            echo -e "[${red}Error${plain}] Failed to install v2ray-plugin."
-            install_cleanup
-            exit 1
-        fi
-    else
-        echo "[${green}Info${plain}] v2ray-plugin already installed."
+        echo -e "[${red}Error${plain}] Failed to install v2ray-plugin."
+        install_cleanup
+        exit 1
     fi
 }
 
 start_ss(){
-        # Start shadowsocks
-        ldconfig
-        /etc/init.d/shadowsocks restart
-        if [ $? -eq 0 ]; then
-            echo -e "[${green}Info${plain}] Shadowsocks-libev start success!"
-        else
-            echo -e "[${yellow}Warning${plain}] Shadowsocks-libev start failure!"
-        fi
-
+    # Start shadowsocks
+    ldconfig
+    /etc/init.d/shadowsocks restart
+    if [ $? -eq 0 ]; then
+        echo -e "[${green}Info${plain}] Shadowsocks-libev start success!"
+    else
+        echo -e "[${yellow}Warning${plain}] Shadowsocks-libev start failure!"
+    fi
 }
 
 install_cleanup(){
@@ -279,34 +272,34 @@ uninstall_shadowsocks(){
         exit 1
     fi
 
-        /etc/init.d/shadowsocks status > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            /etc/init.d/shadowsocks stop
-        fi
-        update-rc.d -f shadowsocks remove
-        rm -fr /etc/shadowsocks-libev
-        rm -f /usr/local/bin/ss-local
-        rm -f /usr/local/bin/ss-tunnel
-        rm -f /usr/local/bin/ss-server
-        rm -f /usr/local/bin/ss-manager
-        rm -f /usr/local/bin/ss-redir
-        rm -f /usr/local/bin/ss-nat
-        rm -f /usr/local/lib/libshadowsocks-libev.a
-        rm -f /usr/local/lib/libshadowsocks-libev.la
-        rm -f /usr/local/include/shadowsocks.h
-        rm -f /usr/local/lib/pkgconfig/shadowsocks-libev.pc
-        rm -f /usr/local/share/man/man1/ss-local.1
-        rm -f /usr/local/share/man/man1/ss-tunnel.1
-        rm -f /usr/local/share/man/man1/ss-server.1
-        rm -f /usr/local/share/man/man1/ss-manager.1
-        rm -f /usr/local/share/man/man1/ss-redir.1
-        rm -f /usr/local/share/man/man1/ss-nat.1
-        rm -f /usr/local/share/man/man8/shadowsocks-libev.8
-        rm -fr /usr/local/share/doc/shadowsocks-libev
-        rm -f /etc/init.d/shadowsocks
-        rm -f /usr/local/bin/v2ray-plugin
-        echo -e "[${green}Info${plain}] shadowsocks-libev removed successfully."
-        echo -e "[${green}Info${plain}] Run ${green}~/lamp/lamp.sh uninstall${plain} to remove lamp."
+    /etc/init.d/shadowsocks status > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        /etc/init.d/shadowsocks stop
+    fi
+    update-rc.d -f shadowsocks remove
+    rm -fr /etc/shadowsocks-libev
+    rm -f /usr/local/bin/ss-local
+    rm -f /usr/local/bin/ss-tunnel
+    rm -f /usr/local/bin/ss-server
+    rm -f /usr/local/bin/ss-manager
+    rm -f /usr/local/bin/ss-redir
+    rm -f /usr/local/bin/ss-nat
+    rm -f /usr/local/lib/libshadowsocks-libev.a
+    rm -f /usr/local/lib/libshadowsocks-libev.la
+    rm -f /usr/local/include/shadowsocks.h
+    rm -f /usr/local/lib/pkgconfig/shadowsocks-libev.pc
+    rm -f /usr/local/share/man/man1/ss-local.1
+    rm -f /usr/local/share/man/man1/ss-tunnel.1
+    rm -f /usr/local/share/man/man1/ss-server.1
+    rm -f /usr/local/share/man/man1/ss-manager.1
+    rm -f /usr/local/share/man/man1/ss-redir.1
+    rm -f /usr/local/share/man/man1/ss-nat.1
+    rm -f /usr/local/share/man/man8/shadowsocks-libev.8
+    rm -fr /usr/local/share/doc/shadowsocks-libev
+    rm -f /etc/init.d/shadowsocks
+    rm -f /usr/local/bin/v2ray-plugin
+    echo -e "[${green}Info${plain}] shadowsocks-libev removed successfully."
+    echo -e "[${green}Info${plain}] Run ${green}~/lamp/lamp.sh uninstall${plain} to remove lamp."
 }
 
 # Initialization step
