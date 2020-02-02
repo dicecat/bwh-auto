@@ -86,7 +86,7 @@ get_latest_version(){
     libsodium_file="libsodium-stable"
     libsodium_url="https://download.libsodium.org/libsodium/releases/LATEST.tar.gz"
 
-    mbedtsl_ver=`curl -sL https://tls.mbed.org/download-archive |grep gpl.tgz |grep mbedtls |head -n1 |cut -f2 -d\" |cut -f4 -d\/ |cut -f2 -d-`
+    mbedtsl_ver=`wget --no-check-certificate -qO- https://tls.mbed.org/download-archive |grep gpl.tgz |grep mbedtls |head -n1 |cut -f2 -d\" |cut -f4 -d\/ |cut -f2 -d-`
     mbedtls_file="mbedtls-${mbedtsl_ver}"
     mbedtls_url="https://tls.mbed.org/download/${mbedtls_file}-gpl.tgz"
 
