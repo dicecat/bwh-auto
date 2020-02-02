@@ -37,17 +37,17 @@ common_ciphers=(
 # https://github.com/shadowsocks/shadowsocks-libev
 # dependencies other than libmbedtls & libsodium
 apt_depends=(
-    autoconf automake libtool 
-    gettext 
-    build-essential 
-    libpcre3-dev 
-    libev-dev 
+    autoconf automake libtool
+    gettext
+    build-essential
+    libpcre3-dev
+    libev-dev
     libc-ares-dev
 )
 
-check_environment(){
+check_environment() {
     # Check root priviledge
-    if [ `whoami` != "root" ]; then
+    if [ $(whoami) != "root" ]; then
         echo -e "[${red}Error${plain}] This script must be run as root!"
         exit 1
     fi
@@ -58,35 +58,35 @@ check_environment(){
     fi
     # set current folder
     cd /root/
-    cur_dir=$( pwd )
+    cur_dir=$(pwd)
 }
 
 # Disable selinux
-disable_selinux(){
+disable_selinux() {
     if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
     fi
 }
 
-install_prepare(){
+install_prepare() {
     if [ -s /etc/shadowsocks-libev/config.json ]; then
         cp -f /etc/shadowsocks-libev/config.json /etc/shadowsocks-libev/config.json.backup
-        shadowsockspwd=`grep password /etc/shadowsocks-libev/config.json |cut -f4 -d\"`
-        shadowsocksport=`grep server_port /etc/shadowsocks-libev/config.json |cut -f2 -d: |cut -f1 -d,`
+        shadowsockspwd=$(grep password /etc/shadowsocks-libev/config.json | cut -f4 -d\")
+        shadowsocksport=$(grep server_port /etc/shadowsocks-libev/config.json | cut -f2 -d: | cut -f1 -d,)
     else
-        shadowsockspwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+        shadowsockspwd="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
         shadowsocksport=$(shuf -i 9000-19999 -n 1)
     fi
     # pick=13
     shadowsockscipher=${common_ciphers[12]}
 }
 
-get_latest_version(){
+get_latest_version() {
     libsodium_file="libsodium-stable"
     libsodium_url="https://download.libsodium.org/libsodium/releases/LATEST.tar.gz"
 
-    mbedtsl_ver=`wget --no-check-certificate -qO- https://tls.mbed.org/download-archive |grep gpl.tgz |grep mbedtls |head -n1 |cut -f2 -d\" |cut -f4 -d\/ |cut -f2 -d-`
+    mbedtsl_ver=$(wget --no-check-certificate -qO- https://tls.mbed.org/download-archive | grep gpl.tgz | grep mbedtls | head -n1 | cut -f2 -d\" | cut -f4 -d\/ | cut -f2 -d-)
     mbedtls_file="mbedtls-${mbedtsl_ver}"
     mbedtls_url="https://tls.mbed.org/download/${mbedtls_file}-gpl.tgz"
 
@@ -100,7 +100,7 @@ get_latest_version(){
     shadowsocks_libev_debian="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
 }
 
-download(){
+download() {
     local filename=$(basename $1)
     if [ -f ${1} ]; then
         rm -f "${filename}"
@@ -114,7 +114,7 @@ download(){
 }
 
 # Download latest versions
-download_files(){
+download_files() {
     cd ${cur_dir}
     get_latest_version
 
@@ -125,14 +125,14 @@ download_files(){
     download "/etc/init.d/shadowsocks" "${shadowsocks_libev_debian}"
 }
 
-config_shadowsocks(){
+config_shadowsocks() {
     # /etc/shadowsocks-libev/config.json
     if [ -s /etc/shadowsocks-libev/config.json.backup ]; then
         mv /etc/shadowsocks-libev/config.json.backup /etc/shadowsocks-libev/config.json
         return 0
     fi
     mkdir -p /etc/shadowsocks-libev
-    cat > /etc/shadowsocks-libev/config.json<<-EOF
+    cat >/etc/shadowsocks-libev/config.json <<-EOF
 {
     "server":"0.0.0.0",
     "server_port":${shadowsocksport},
@@ -149,25 +149,25 @@ config_shadowsocks(){
 EOF
 }
 
-error_detect_depends(){
+error_detect_depends() {
     local command=$1
-    local depend=`echo "${command}" | awk '{print $4}'`
+    local depend=$(echo "${command}" | awk '{print $4}')
     echo -e "[${green}Info${plain}] Starting to install package ${depend}"
-    ${command} > /dev/null 2>&1
+    ${command} >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "[${red}Error${plain}] Failed to install ${depend}"
         exit 1
     fi
 }
 
-install_dependencies(){
+install_dependencies() {
     apt-get -y update
     for depend in ${apt_depends[@]}; do
         error_detect_depends "apt-get -y install ${depend}"
     done
 }
 
-install_libsodium(){
+install_libsodium() {
     cd ${cur_dir}
     tar xf ${libsodium_file}.tar.gz
     cd ${libsodium_file}
@@ -180,7 +180,7 @@ install_libsodium(){
     ldconfig
 }
 
-install_mbedtls(){
+install_mbedtls() {
     cd ${cur_dir}
     tar xf ${mbedtls_file}-gpl.tgz
     cd ${mbedtls_file}
@@ -195,7 +195,7 @@ install_mbedtls(){
 }
 
 # Install shadowsocks-libev
-install_ss(){
+install_ss() {
     cd ${cur_dir}
     tar xf ${shadowsocks_libev_file}.tar.gz
     cd ${shadowsocks_libev_file}
@@ -211,18 +211,18 @@ install_ss(){
 }
 
 # Install v2ray-plugin
-install_v2(){
+install_v2() {
     cd ${cur_dir}
     tar xf $v2_file
     mv v2ray-plugin_linux_amd64 /usr/local/bin/v2ray-plugin
-    if [ ! -f /usr/local/bin/v2ray-plugin ];then
+    if [ ! -f /usr/local/bin/v2ray-plugin ]; then
         echo -e "[${red}Error${plain}] Failed to install v2ray-plugin."
         install_cleanup
         exit 1
     fi
 }
 
-start_ss(){
+start_ss() {
     # Start shadowsocks
     ldconfig
     /etc/init.d/shadowsocks restart
@@ -233,7 +233,7 @@ start_ss(){
     fi
 }
 
-install_cleanup(){
+install_cleanup() {
     cd ${cur_dir}
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
     rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
@@ -241,11 +241,11 @@ install_cleanup(){
     rm -f $v2_file
 }
 
-print_ss_info(){
+print_ss_info() {
     clear
     echo
     echo -e "Congratulations, shadowsocks-libev server install completed!"
-    echo -e "Your Server IP        : ${red} $( wget -qO- -t1 -T2 ipv4.icanhazip.com ) ${plain}"
+    echo -e "Your Server IP        : ${red} $(wget -qO- -t1 -T2 ipv4.icanhazip.com) ${plain}"
     echo -e "Your Server Port      : ${red} ${shadowsocksport} ${plain}"
     echo -e "Your Password         : ${red} ${shadowsockspwd} ${plain}"
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
@@ -254,7 +254,7 @@ print_ss_info(){
     echo -e "Enjoy it!"
 }
 
-install_shadowsocks(){
+install_shadowsocks() {
     check_environment
     disable_selinux
     install_prepare
@@ -270,14 +270,14 @@ install_shadowsocks(){
 }
 
 # Uninstall shadowsocks-libev
-uninstall_shadowsocks(){
+uninstall_shadowsocks() {
     if [ ! -f /etc/init.d/shadowsocks ]; then
         echo -e "[${red}Error${plain}] shadowsocks-libev not installed, please check it and try again."
         echo
         exit 1
     fi
 
-    /etc/init.d/shadowsocks status > /dev/null 2>&1
+    /etc/init.d/shadowsocks status >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         /etc/init.d/shadowsocks stop
     fi
@@ -311,7 +311,7 @@ uninstall_shadowsocks(){
 action=$1
 [ -z $1 ] && action=install
 case "${action}" in
-    install|uninstall)
+    install | uninstall)
         ${action}_shadowsocks
         ;;
     *)
