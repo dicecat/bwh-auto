@@ -1,10 +1,5 @@
 #/usr/bin/env bash
 
-# run-once-code; for compatibility when sourcing from main
-# put here to receive arg from command line
-_choice_of_web=$1
-# end of run-once-code
-
 # http://www.opensourceposguide.com/guide/gettingstarted/installation
 # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
 install_ospos() {
@@ -122,7 +117,7 @@ choice_of_web() {
     fi
 
     case "${_choice_of_web}" in
-        1 | 2 | 3)
+        1 | 2 | 0)
             return 0
             ;;
         *)
@@ -160,5 +155,6 @@ install_choice_of_web() {
     esac
 }
 
+_choice_of_web=$1
 choice_of_web
 install_choice_of_web
