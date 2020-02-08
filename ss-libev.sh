@@ -316,6 +316,7 @@ action=$1
 case "${action}" in
     install | uninstall)
         ${action}_shadowsocks
+        reboot
         ;;
     *)
         echo "Arguments error! [${action}]"
