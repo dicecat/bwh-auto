@@ -4,6 +4,7 @@
 # @madeye     <https://github.com/madeye>
 # @teddysun   <https://github.com/teddysun>
 
+[ ! "$(command -v wget)" ] && apt-get -qq install wget
 wget --no-check-certificate -qO ~/add-site.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/add-site.sh
 wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/ss-libev.sh
 . ~/ss-libev.sh prep 2>&1 >/dev/null
