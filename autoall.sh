@@ -72,12 +72,11 @@ set_pw_enc() {
 
 # update system
 update_sys() {
-    # move bwh first boot logfile
-    # mv /root/virt-sysprep-firstboot.log /usr/lib/virt-sysprep
     # lsb_release -a
     export DEBIAN_FRONTEND=noninteractive
     apt-get update && apt-get -qq -o Dpkg::Options::="--force-confnew" dist-upgrade
     # config auto-update
+    # https://wiki.debian.org/UnattendedUpgrades
     # https://discourse.ubuntu.com/t/package-management/11908
     apt-get -qq install unattended-upgrades
     cat >/etc/apt/apt.conf.d/20auto-upgrades <<-EOF
