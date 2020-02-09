@@ -43,6 +43,7 @@ apt_depends=(
     libpcre3-dev
     libev-dev
     libc-ares-dev
+    qrencode
 )
 
 check_environment() {
@@ -245,16 +246,22 @@ install_cleanup() {
 }
 
 print_ss_info() {
+    local ip_address="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
+    local plugin_opts="tls;host=${domain};path=/data/www/plug"
+    local ss_enc="$(printf ${shadowsockscipher}:${shadowsockspwd} | base64)"
+    local ss_link="ss://${ss_enc}@${ip_address}:${shadowsocksport}?plugin=v2ray;${plugin_opts}"
     clear
     echo
     echo -e "Congratulations, shadowsocks-libev server install completed!"
-    echo -e "Your Server IP        : ${red} $(wget -qO- -t1 -T2 ipv4.icanhazip.com) ${plain}"
+    echo -e "Your Server IP        : ${red} ${ip_address} ${plain}"
     echo -e "Your Server Port      : ${red} ${shadowsocksport} ${plain}"
     echo -e "Your Password         : ${red} ${shadowsockspwd} ${plain}"
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
     echo -e "Your Plugin           : ${red} v2ray-plugin ${plain}"
-    echo -e "Your Plugin options   : ${red} tls;host=${domain};path=/data/www/plug ${plain}"
+    echo -e "Your Plugin options   : ${red} ${plugin_opts} ${plain}"
     echo -e "Enjoy it!"
+    echo
+    qrencode -t UTF8 "${ss_link}"
 }
 
 install_shadowsocks() {
