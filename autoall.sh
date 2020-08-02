@@ -4,14 +4,15 @@
 # @madeye     <https://github.com/madeye>
 # @teddysun   <https://github.com/teddysun>
 
+[ ! "$(command -v wget)" ] && apt-get -qq install wget
 wget --no-check-certificate -qO ~/add-site.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/add-site.sh
 wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/dicecat/bwh-auto/master/ss-libev.sh
-. ~/ss-libev.sh prep 2>&1 > /dev/null
+. ~/ss-libev.sh prep 2>&1 >/dev/null
 . ~/add-site.sh prep && _choice_of_web="_main_call"
 chmod +x ~/*.sh
 
 # Set domain
-set_domain(){
+set_domain() {
     echo
     echo -e "[${green}Info${plain}] Please wait a few seconds..."
     echo
@@ -24,19 +25,18 @@ set_domain(){
     read domain
     domain="${domain%% *}"
     [ -z "${domain}" ] && domain="Invalid"
-    host ${domain} 2>&1 > /dev/null
-    while [ $? -ne 0 ]
-    do
+    host ${domain} 2>&1 >/dev/null
+    while [ $? -ne 0 ]; do
         echo -e "[${red}Error${plain}] Invalid domain. Please try again:"
         read domain
         domain="${domain%% *}"
         [ -z "${domain}" ] && domain="Invalid"
-        host ${domain} 2>&1 > /dev/null
+        host ${domain} 2>&1 >/dev/null
     done
     echo -e "domain = ${yellow}${domain}${plain}"
 }
 
-set_email_addr(){
+set_email_addr() {
     echo
     echo -e "[${green}Optional: email address${plain}]"
     echo "A valid email address is required if you need to disable pw and use key pairs to login."
@@ -49,18 +49,17 @@ set_email_addr(){
     [ -z "${email_addr}" ] && return 0
     #validate email_addr
     while [ ! -z "${email_addr}" ]; do
-    if [[ "${email_addr}" =~ ^([A-Za-z]+[A-Za-z0-9]*((\.|\-|\_)?[A-Za-z]+[A-Za-z0-9]*){1,})@(([A-Za-z]+[A-Za-z0-9]*)+((\.|\-|\_)?([A-Za-z]+[A-Za-z0-9]*)+){1,})+\.([A-Za-z]{2,})+$ ]];
-    then
-        echo -e "email_addr = ${yellow}${email_addr}${plain}"
-        return 0;
-    else
-        echo -e "[${red}Error${plain}] Invalid email address. Please try again:"
-        read email_addr
-    fi
+        if [[ "${email_addr}" =~ ^([A-Za-z]+[A-Za-z0-9]*((\.|\-|\_)?[A-Za-z]+[A-Za-z0-9]*){1,})@(([A-Za-z]+[A-Za-z0-9]*)+((\.|\-|\_)?([A-Za-z]+[A-Za-z0-9]*)+){1,})+\.([A-Za-z]{2,})+$ ]]; then
+            echo -e "email_addr = ${yellow}${email_addr}${plain}"
+            return 0
+        else
+            echo -e "[${red}Error${plain}] Invalid email address. Please try again:"
+            read email_addr
+        fi
     done
 }
 
-set_pw_enc(){
+set_pw_enc() {
     [ -z "${email_addr}" ] && pw_enc="" && return 0
     echo
     echo -e "[${green}NOTE: password${plain}]"
@@ -72,13 +71,12 @@ set_pw_enc(){
 }
 
 # update system
-update_sys(){
-    # move bwh first boot logfile
-    # mv /root/virt-sysprep-firstboot.log /usr/lib/virt-sysprep
+update_sys() {
     # lsb_release -a
     export DEBIAN_FRONTEND=noninteractive
     apt-get update && apt-get -qq -o Dpkg::Options::="--force-confnew" dist-upgrade
     # config auto-update
+    # https://wiki.debian.org/UnattendedUpgrades
     # https://discourse.ubuntu.com/t/package-management/11908
     apt-get -qq install unattended-upgrades
     cat >/etc/apt/apt.conf.d/20auto-upgrades <<-EOF
@@ -90,23 +88,23 @@ EOF
 }
 
 # https://www.moerats.com/archives/612/
-enable_BBR(){
-    sysctl net.ipv4.tcp_available_congestion_control | grep bbr > /dev/null
+enable_BBR() {
+    sysctl net.ipv4.tcp_available_congestion_control | grep bbr >/dev/null
     if [ $? -ne 0 ]; then
         cat /etc/sysctl.conf | grep 'net.core.default_qdisc' >./bbr.tmp
         cat /etc/sysctl.conf | grep 'net.ipv4.tcp_congestion_control' >>./bbr.tmp
-    	sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
-    	sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
-        echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-        echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+        sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+        sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+        echo "net.core.default_qdisc=fq" >>/etc/sysctl.conf
+        echo "net.ipv4.tcp_congestion_control=bbr" >>/etc/sysctl.conf
         sysctl -p
     else
         return 0
     fi
     lsmod | grep bbr
     if [ $? -ne 0 ]; then
-    	sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
-    	sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+        sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+        sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
         cat ./bbr.tmp >>/etc/sysctl.conf
         rm -f ./bbr.tmp
         echo -e "[${yellow}Warning${plain}] BBR not enabled."
@@ -116,7 +114,7 @@ enable_BBR(){
 # bwh installed BBR by default
 
 # https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-centos-6
-fix_swap(){
+fix_swap() {
     # (if /swap exists) remove the original swap
     swapoff /swap && rm -f /swap
     swapoff /swapfile && rm -f /swapfile
@@ -128,11 +126,11 @@ fix_swap(){
     swapon /swap
     # (if /swap non-exist) boot to load
     sleep 30
-    if [ ! -s /swap ];then
+    if [ ! -s /swap ]; then
         echo -e "[${red}Error${plain}] Fail to create swap."
         exit 1
     fi
-    swap_stat=$( swapon -s | grep swap | grep 524284)
+    swap_stat=$(swapon -s | grep swap | grep 524284)
     if [ -z "${swap_stat}" ]; then
         echo -e "[${red}Error${plain}] Fail to load swap. Reboot and run this script again."
         exit 1
@@ -143,9 +141,9 @@ fix_swap(){
 # sourced from ss-libev.sh
 # install_shadowsocks(){}
 
-install_lamp_git(){
+install_lamp_git() {
     # lamp install prep
-    dbrootpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbrootpwd="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
 
     apt-get -qq install git
     git clone https://github.com/teddysun/lamp.git
@@ -160,7 +158,7 @@ install_lamp_git(){
 }
 
 #post install
-set_folder(){
+set_folder() {
     apache_location=/usr/local/apache
     website_root="/data/www/${domain}"
     php_admin_value="php_admin_value open_basedir ${website_root}:/tmp:/var/tmp:/proc"
@@ -169,7 +167,7 @@ set_folder(){
 }
 
 # https://certbot.eff.org/lets-encrypt/ubuntubionic-other
-get_cert(){
+get_cert() {
     # enable ssl & ws
     # https://lamp.sh/faq.html Q15
     # https://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
@@ -177,17 +175,17 @@ get_cert(){
     sed -i '/.*wstunnel.*/ s/^#//' ${apache_location}/conf/httpd.conf
     /etc/init.d/httpd restart
 
-    if [ -f /etc/letsencrypt/live/$domain/fullchain.pem ];then
+    if [ -f /etc/letsencrypt/live/$domain/fullchain.pem ]; then
         echo -e "[${green}Info${plain}] cert already got, skip."
     else
         apt-get update
-            apt-get -qq install software-properties-common
-            add-apt-repository -y universe
-            add-apt-repository -y ppa:certbot/certbot
-            apt-get update
-        apt-get -qq install certbot 
+        apt-get -qq install software-properties-common
+        add-apt-repository -y universe
+        add-apt-repository -y ppa:certbot/certbot
+        apt-get update
+        apt-get -qq install certbot
         certbot certonly --agree-tos --register-unsafely-without-email --webroot -w ${website_root} -d ${domain}
-        if [ ! -f /etc/letsencrypt/live/$domain/fullchain.pem ];then
+        if [ ! -f /etc/letsencrypt/live/$domain/fullchain.pem ]; then
             echo -e "[${red}Error${plain}] Failed to get cert."
             exit 1
         fi
@@ -196,21 +194,24 @@ get_cert(){
     fi
 }
 
-check_lets_cron(){
+check_lets_cron() {
     if [ "$(command -v crontab)" ]; then
         if crontab -l | grep -q "certbot renew --disable-hook-validation"; then
             echo "Cron job for automatic renewal of certificates exists."
         else
             echo "Cron job for automatic renewal of certificates does not exist. Create it."
-            (crontab -l ; echo '0 3 */60 * * certbot renew --disable-hook-validation --post-hook "/etc/init.d/httpd restart"') | crontab -
+            (
+                crontab -l
+                echo '0 3 */60 * * certbot renew --disable-hook-validation --post-hook "/etc/init.d/httpd restart"'
+            ) | crontab -
         fi
     else
         echo -e "[${yellow}Warning${plain}] crontab command not found, please set up a cron job manually."
     fi
 }
 
-create_vhost80(){
-    cat > ${apache_location}/conf/vhost/${domain}.conf << EOF
+create_vhost80() {
+    cat >${apache_location}/conf/vhost/${domain}.conf <<EOF
 <VirtualHost *:80>
     ${php_admin_value}
     ServerName ${domain}
@@ -240,10 +241,10 @@ EOF
     fi
 }
 
-create_vhost443(){
+create_vhost443() {
     ss_port=$(cat /etc/shadowsocks-libev/config.json | grep server_port | cut -f2 -d: | cut -f1 -d,)
     sed -i '/.*VirtualHost>/d;' ${apache_location}/conf/vhost/${domain}.conf
-    cat >> ${apache_location}/conf/vhost/${domain}.conf << EOF
+    cat >>${apache_location}/conf/vhost/${domain}.conf <<EOF
     Redirect 301 / https://${domain}
     RewriteEngine on
     RewriteCond %{SERVER_NAME} =${domain}
@@ -287,7 +288,7 @@ EOF
     fi
 }
 
-modify_ssconf(){
+modify_ssconf() {
     sed -i '/plugin/d;' /etc/shadowsocks-libev/config.json
     sed -i '/}/d;' /etc/shadowsocks-libev/config.json
     sed -i '${s/$/,/}' /etc/shadowsocks-libev/config.json
@@ -302,13 +303,13 @@ EOF
 
 # https://www.findhao.net/easycoding/1714
 # disable pw login
-disable_pw_login(){
+disable_pw_login() {
     # skip this part if pw_enc not set
     [ -z "${pw_enc}" ] && return 0
     # generate key pair
     # https://laishanhai1040.github.io/2019/07/21/Shadowsocks-setup-summary/
     mkdir -p ~/.ssh && chmod 700 ~/.ssh
-    ssh-keygen -b 512 -t ed25519 -N "${pw_enc}" -f /root/.ssh/id_ed25519 <<< y
+    ssh-keygen -b 512 -t ed25519 -N "${pw_enc}" -f /root/.ssh/id_ed25519 <<<y
     chmod 600 ~/.ssh/id_ed25519.pub
     cat >>/etc/ssh/sshd_config <<-EOF
 PubkeyAuthentication yes
@@ -320,18 +321,18 @@ EOF
 }
 
 # process essential info
-essential_info(){
+essential_info() {
     # save essential info to autoall.essential
     # cat /etc/shadowsocks-libev/config.json > /root/autoall.essential
-    print_ss_info > /root/autoall.essential
-    cat >> /root/autoall.essential <<-EOF
+    print_ss_info >/root/autoall.essential
+    cat >>/root/autoall.essential <<-EOF
 
 MySQL credentials:
 root password: ${dbrootpwd}
 web root: ${website_root}
 
 EOF
-    [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >> /root/autoall.essential
+    [ -z "${pw_enc}" ] && return 0 || cat /root/.ssh/id_ed25519 >>/root/autoall.essential
     #openssl enc -base64 -in /root/autoall.essential -out /root/autoall.essential.enc -pass pass:"${pw_enc}"
 
     # email private key to ssh into server after reboot

@@ -7,7 +7,7 @@
 1) install shadowsocks-libev and v2ray-plugin;
 2) install lamp stack of the latest version;
 3) config ss over ws+tls behind web service;
-4) (optional) install web contents (OSPOS or WordPress).
+4) (optional) install web contents (WordPress).
 
 ## Requirements
 
@@ -20,19 +20,22 @@
 
 SSH into your VPS and run commands:  
 
-1) **wget --no-check-certificate -qO ~/autoall.sh <https://git.io/JeyRB>**
-2) **bash ~/autoall.sh 2>&1 | tee autoall.log**  
-
+```
+wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
+bash ~/autoall.sh 2>&1 | tee autoall.log
+```
 After reboot, SSH into VPS and access essential info by:  
 
-1) **cat ~/autoall.essential**  
+```
+cat ~/autoall.essential
+```
 
 ## Changelog
 
 ### 20191208
 
 Add add-site.sh functionality.  
-Optional to add OSPOS or WordPress web contents.  
+Optional to add WordPress web contents.  
 Optional to ban direct IP access, preventing WordPress from exposing your IP & domain.  
 Either add-site.sh or ss-libev.sh should also work independently after autoall.sh runs.
 

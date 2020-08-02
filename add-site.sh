@@ -1,26 +1,22 @@
 #/usr/bin/env bash
 
-# run-once-code; for compatibility when sourcing from main
-# put here to receive arg from command line
-_choice_of_web=$1
-# end of run-once-code
-
 # http://www.opensourceposguide.com/guide/gettingstarted/installation
 # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
-install_ospos(){
+install_ospos() {
     dbname="ospos"
     dbusername="adminhenry"
-    dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
-    dbencryptionkey="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbuserpwd="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
+    dbencryptionkey="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
 
     cd ~
     rm -rf ${website_root}
-    path_to_ospos_file=$( wget --no-check-certificate -qO- https://github.com/opensourcepos/opensourcepos/releases/latest | grep '\.zip' | grep href | head -n 1 | cut -f2 -d\" )
+    path_to_ospos_file=$(wget --no-check-certificate -qO- https://github.com/opensourcepos/opensourcepos/releases/latest | grep '\.zip' | grep href | head -n 1 | cut -f2 -d\")
     wget --no-check-certificate -qO latest.ospos.zip "https://github.com${path_to_ospos_file}"
     apt-get -qq install unzip
     unzip -qq latest.ospos.zip -d ${website_root}
     rm -f latest.ospos.zip
 
+    [ -f /usr/local/mariadb/data/ospos ] && rm -f /usr/local/mariadb/data/ospos/*
     cd "${website_root}/database"
     mysql -uroot -p${dbrootpwd} <<EOF
 DROP USER IF EXISTS '${dbusername}'@'localhost';
@@ -39,10 +35,10 @@ EOF
 }
 
 # https://wordpress.org/support/article/how-to-install-wordpress/
-install_wp(){
+install_wp() {
     dbname="wordpress"
     dbusername="adminhenry"
-    dbuserpwd="$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )"
+    dbuserpwd="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
 
     cd ~
     rm -rf ${website_root}
@@ -69,19 +65,19 @@ EOF
     # https://dev.mysql.com/doc/refman/5.6/en/charset-charsets.html
     sed -i "/.*DB_CHARSET.*/ s/utf8/utf8mb4/" wp-config.php
     # https://api.wordpress.org/secret-key/1.1/salt/
-    sed -i '/.*put your unique phrase here.*/r'<( wget --no-check-certificate -qO- https://api.wordpress.org/secret-key/1.1/salt/ | grep define ) wp-config.php
+    sed -i '/.*put your unique phrase here.*/r'<(wget --no-check-certificate -qO- https://api.wordpress.org/secret-key/1.1/salt/ | grep define) wp-config.php
     sed -i '/.*put your unique phrase here.*/d' wp-config.php
     rm -f wget-log*
     echo "WordPress installed. Access your website to complete the installation."
 }
 
 # protect your ip & domain while using CDN
-ban_direct_access(){
+ban_direct_access() {
     # vps_ip=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
     # remove http redirect on domain.conf
     sed -i "s/\(.*Redirect.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
     sed -i "s/\(.*Rewrite.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
-    cat >${apache_location}/conf/vhost/direct.conf << EOF
+    cat >${apache_location}/conf/vhost/direct.conf <<EOF
 <VirtualHost *:80>
     ServerName default
     <Location />
@@ -106,30 +102,30 @@ EOF
     echo "And enable Always Use HTTPS option. Then it should work. Reboot if not."
 }
 
-choice_of_web(){
+choice_of_web() {
     [ "${_choice_of_web}" == "prep" ] && return 0
 
     if [ "${_choice_of_web}" != "_main_call" ]; then
         if [ ! -f ~/autoall.essential ]; then
             _choice_of_web="_no_ess_file" && return 0
         else
-            dbrootpwd=$( cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
-            website_root=$( cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
-            domain=$( echo -e "${website_root}" | cut -f4 -d\/ )
+            dbrootpwd=$(cat ~/autoall.essential | grep 'root password' | cut -f3 -d\ )
+            website_root=$(cat ~/autoall.essential | grep 'web root' | cut -f3 -d\ )
+            domain=$(echo -e "${website_root}" | cut -f4 -d\/)
             apache_location=/usr/local/apache
         fi
     fi
 
     case "${_choice_of_web}" in
-        1|2|3)
-            return 0;
+        1 | 2 | 0)
+            return 0
             ;;
         *)
             echo
             echo "The following web contents are available:"
-            echo "[1] OSPOS"
-            echo "[2] WordPress"
-            echo "[3] Ban direct IP access & work with CloudFlare."
+            echo "[1] WordPress"
+            # echo "[2] OSPOS"
+            echo "[0] Ban direct IP access & work with CloudFlare."
             echo "[Otherwise] Do nothing & just skip any of the above"
             read -p "Enter your choice of web contents: " _choice_of_web
             echo
@@ -137,15 +133,15 @@ choice_of_web(){
     esac
 }
 
-install_choice_of_web(){
+install_choice_of_web() {
     case "${_choice_of_web}" in
         1)
-            install_ospos
-            ;;
-        2)
             install_wp
             ;;
-        3)
+        2)
+            install_ospos
+            ;;
+        0)
             ban_direct_access
             ;;
         prep)
@@ -159,5 +155,6 @@ install_choice_of_web(){
     esac
 }
 
+_choice_of_web=$1
 choice_of_web
 install_choice_of_web
