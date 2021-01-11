@@ -12,26 +12,13 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
-# Stream Ciphers
+# AEAD constructions supported
 common_ciphers=(
+    xchacha20-ietf-poly1305
+    chacha20-ietf-poly1305
     aes-256-gcm
     aes-192-gcm
     aes-128-gcm
-    aes-256-ctr
-    aes-192-ctr
-    aes-128-ctr
-    aes-256-cfb
-    aes-192-cfb
-    aes-128-cfb
-    camellia-128-cfb
-    camellia-192-cfb
-    camellia-256-cfb
-    xchacha20-ietf-poly1305
-    chacha20-ietf-poly1305
-    chacha20-ietf
-    chacha20
-    salsa20
-    rc4-md5
 )
 
 # https://github.com/shadowsocks/shadowsocks-libev
@@ -79,8 +66,9 @@ install_prepare() {
         shadowsockspwd="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
         shadowsocksport=$(shuf -i 9000-19999 -n 1)
     fi
-    # pick=13
-    shadowsockscipher=${common_ciphers[13]}
+    # https://doc.libsodium.org/secret-key_cryptography/aead
+    # pick=1; xchacha20-ietf-poly1305 no longer supported by some client
+    shadowsockscipher=${common_ciphers[1]}
 }
 
 get_latest_version() {
