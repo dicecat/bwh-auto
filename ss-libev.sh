@@ -80,7 +80,7 @@ install_prepare() {
         shadowsocksport=$(shuf -i 9000-19999 -n 1)
     fi
     # pick=13
-    shadowsockscipher=${common_ciphers[12]}
+    shadowsockscipher=${common_ciphers[13]}
 }
 
 get_latest_version() {
