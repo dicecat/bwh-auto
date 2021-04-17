@@ -19,13 +19,16 @@ install_ospos() {
     [ -f /usr/local/mariadb/data/ospos ] && rm -f /usr/local/mariadb/data/ospos/*
     cd "${website_root}/database"
     mysql -uroot -p${dbrootpwd} <<EOF
-DROP USER IF EXISTS '${dbusername}'@'localhost';
+DROP USER IF EXISTS '${dbusername}'@'%';
 DROP DATABASE IF EXISTS ${dbname};
 CREATE DATABASE ${dbname} COLLATE utf8mb4_general_ci;
-CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbuserpwd}';
-GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'localhost';
+CREATE USER '${dbusername}'@'%' IDENTIFIED BY '${dbuserpwd}';
+GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbusername}'@'%' IDENTIFIED BY '${dbuserpwd}' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
-use ospos;source ./database.sql;COMMIT;
+quit
+EOF
+    mysql -u${dbusername} -p${dbuserpwd} <<EOF
+use ${dbname};source ./database.sql;COMMIT;
 quit
 EOF
     sed -i "/.*MYSQL_USERNAME.*/ s/admin/${dbusername}/" ${website_root}/application/config/database.php
