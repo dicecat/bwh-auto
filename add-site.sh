@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 # http://www.opensourceposguide.com/guide/gettingstarted/installation
 # https://github.com/opensourcepos/opensourcepos/wiki/Getting-Started-installations
