@@ -67,17 +67,21 @@ install_prepare() {
         shadowsocksport=$(shuf -i 9000-19999 -n 1)
     fi
     # https://doc.libsodium.org/secret-key_cryptography/aead
-    # pick=1; xchacha20-ietf-poly1305 no longer supported by some client
-    shadowsockscipher=${common_ciphers[1]}
+    # pick=0; xchacha20-ietf-poly1305
+    # pick=1; chacha20-ietf-poly1305
+    shadowsockscipher=${common_ciphers[0]}
 }
 
 get_latest_version() {
     libsodium_file="libsodium-stable"
     libsodium_url="https://download.libsodium.org/libsodium/releases/LATEST.tar.gz"
 
-    mbedtsl_ver=$(wget --no-check-certificate -qO- https://tls.mbed.org/download-archive | grep gpl.tgz | grep mbedtls | head -n1 | cut -f2 -d\" | cut -f4 -d\/ | cut -f2 -d-)
-    mbedtls_file="mbedtls-${mbedtsl_ver}"
-    mbedtls_url="https://tls.mbed.org/download/${mbedtls_file}-gpl.tgz"
+    # https://github.com/shadowsocks/shadowsocks-libev/issues/2868
+    # use compatible v2.28.0 for ss v3.3.5
+    # local mbedtls_ver=$(curl -sLI https://github.com/Mbed-TLS/mbedtls/releases/latest | grep -i ^Location |cut -f2 -dv |tr -d "\r")
+    local mbedtls_ver="2.28.0"
+    mbedtls_file="mbedtls-${mbedtls_ver}"
+    mbedtls_url="https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${mbedtls_ver}.tar.gz"
 
     # shadowsocks_libev_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep name | grep tar | cut -f4 -d\" | cut -f1-3 -d.)
     # shadowsocks_libev_url=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep browser_download_url | cut -f4 -d\")
@@ -85,8 +89,8 @@ get_latest_version() {
     shadowsocks_libev_file=$(echo ${shadowsocks_libev_release} | cut -f7 -d\/ | cut -f1-3 -d.)
     shadowsocks_libev_url="https://github.com${shadowsocks_libev_release}"
 
-    v2_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/v2ray-plugin/releases/latest | grep linux-amd64 | grep name | cut -f4 -d\")
-    v2_url=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/v2ray-plugin/releases/latest | grep linux-amd64 | grep browser_download_url | cut -f4 -d\")
+    v2_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/teddysun/v2ray-plugin/releases/latest | grep linux-amd64 | grep name | cut -f4 -d\")
+    v2_url=$(wget --no-check-certificate -qO- https://api.github.com/repos/teddysun/v2ray-plugin/releases/latest | grep linux-amd64 | grep browser_download_url | cut -f4 -d\")
 
     shadowsocks_libev_init="/etc/init.d/shadowsocks"
     shadowsocks_libev_debian="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
@@ -111,7 +115,7 @@ download_files() {
     get_latest_version
 
     download "${libsodium_file}.tar.gz" "${libsodium_url}"
-    download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
+    download "${mbedtls_file}.tar.gz" "${mbedtls_url}"
     download "${shadowsocks_libev_file}.tar.gz" "${shadowsocks_libev_url}"
     download "$v2_file" "$v2_url"
     download "/etc/init.d/shadowsocks" "${shadowsocks_libev_debian}"
@@ -174,7 +178,7 @@ install_libsodium() {
 
 install_mbedtls() {
     cd ${cur_dir}
-    tar xf ${mbedtls_file}-gpl.tgz
+    tar xf ${mbedtls_file}.tar.gz
     cd ${mbedtls_file}
     make SHARED=1 CFLAGS=-fPIC
     make DESTDIR=/usr install
@@ -228,7 +232,7 @@ start_ss() {
 install_cleanup() {
     cd ${cur_dir}
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
+    rm -rf ${mbedtls_file} ${mbedtls_file}.tar.gz
     rm -rf ${shadowsocks_libev_file} ${shadowsocks_libev_file}.tar.gz
     rm -f $v2_file
 }

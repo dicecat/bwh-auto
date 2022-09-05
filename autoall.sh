@@ -150,7 +150,7 @@ install_lamp_git() {
     cd /root/lamp
     chmod +x *.sh
     #./lamp.sh --apache_option 1 --db_option 8 --db_root_pwd "$dbrootpwd" --php_option 6 --kodexplorer_option 2
-     ./lamp.sh --apache_option 1 --db_option 2 --db_root_pwd "$dbrootpwd" --php_option 6 --db_manage_modules phpmyadmin --kodexplorer_option 2
+     ./lamp.sh --apache_option 1 --db_option 2 --db_root_pwd "$dbrootpwd" --php_option 3 --db_manage_modules phpmyadmin --kodexplorer_option 2
     # check lamp install status
     [ ! "$(command -v php)" ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
     mkdir -p /data/www/default.lamp
@@ -178,10 +178,10 @@ get_cert() {
     if [ -f /etc/letsencrypt/live/$domain/fullchain.pem ]; then
         echo -e "[${green}Info${plain}] cert already got, skip."
     else
-        apt-get update
-        apt-get -qq install software-properties-common
-        add-apt-repository -y universe
-        add-apt-repository -y ppa:certbot/certbot
+#        apt-get update
+#        apt-get -qq install software-properties-common
+#        add-apt-repository -y universe
+#        add-apt-repository -y ppa:certbot/certbot
         apt-get update
         apt-get -qq install certbot
         certbot certonly --agree-tos --register-unsafely-without-email --webroot -w ${website_root} -d ${domain}
