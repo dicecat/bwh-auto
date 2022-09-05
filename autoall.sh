@@ -298,7 +298,7 @@ modify_ssconf() {
     "plugin_opts":"server;tls;host=${domain};path=/data/www/plug;cert=${ssl_certificate};key=${ssl_certificate_key}"
 }
 EOF
-    service shadowsocks-libev restart
+    /etc/init.d/shadowsocks restart
 }
 
 # https://www.findhao.net/easycoding/1714
