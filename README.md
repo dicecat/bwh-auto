@@ -1,6 +1,6 @@
 # bwh-auto: simplify the setup of ss+ws+tls+web
 
-## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 18.04
+## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 22.04
 
 ## What it does
 
@@ -31,6 +31,10 @@ cat ~/autoall.essential
 ```
 
 ## Changelog
+
+### 20220905
+
+Minor fix for dead links. Tested OK on Ubuntu 22.04.
 
 ### 20191208
 
