@@ -5,31 +5,31 @@
 ## What it does
 
 1) install shadowsocks-libev and v2ray-plugin;
-2) install lamp stack of the latest version;
-3) config ss over ws+tls behind web service;
+2) install lamp stack (thanks to [lamp.sh](https://lamp.sh));
+3) config ss over ws+tls;
 4) (optional) install web contents (WordPress).
 
 ## Requirements
 
 1) a VPS running Ubuntu, might work on Debian;
 2) a valid domain pointing to the IP address of your VPS;
-3) (optional) an email address to receive private key;
+3) (optional) an email address to receive SSH private key;
 4) (optional if chosen 3) set up a password to private key.
 
 ## Usage
 
-Start a screen session (optional):
+Start a screen session (optional but recommended):
 
 ```
 apt update && apt -y install screen && screen -S autoall
 ```
-SSH into your VPS and run commands:  
+Run scripts:  
 
 ```
 wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
 bash ~/autoall.sh 2>&1 | tee autoall.log
 ```
-After reboot, SSH into VPS (e.g. from KiwiVM panel) and access essential info by:  
+After reboot, reconnect to VPS via SSH (get SSH private key from email if required), or use "Root shell" from KiwiVM panel:
 
 ```
 cat ~/autoall.essential
