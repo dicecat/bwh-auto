@@ -7,8 +7,7 @@
 1) install shadowsocks-libev and v2ray-plugin;
 2) install lamp stack of the latest version;
 3) config ss over ws+tls behind web service;
-4) ~~(optional) install web contents (WordPress).~~
-Web contents installations are broken. Leave default or install manually.
+4) (optional) install web contents (WordPress).
 
 ## Requirements
 
@@ -19,13 +18,18 @@ Web contents installations are broken. Leave default or install manually.
 
 ## Usage
 
+Start a screen session (optional):
+
+```
+apt update && apt -y install screen && screen -S autoall
+```
 SSH into your VPS and run commands:  
 
 ```
 wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
 bash ~/autoall.sh 2>&1 | tee autoall.log
 ```
-After reboot, SSH into VPS and access essential info by:  
+After reboot, SSH into VPS (e.g. from KiwiVM panel) and access essential info by:  
 
 ```
 cat ~/autoall.essential

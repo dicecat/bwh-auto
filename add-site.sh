@@ -76,7 +76,8 @@ EOF
 
 # protect your ip & domain while using CDN
 ban_direct_access() {
-    # vps_ip=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    # TODO: make backup; restore default domain config
+    cp -f ${apache_location}/conf/vhost/${domain}.conf ${apache_location}/conf/vhost/${domain}.conf.prns
     # remove http redirect on domain.conf
     sed -i "s/\(.*Redirect.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
     sed -i "s/\(.*Rewrite.*\)/#\1/" ${apache_location}/conf/vhost/${domain}.conf
