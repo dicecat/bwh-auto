@@ -306,7 +306,7 @@ uninstall_shadowsocks() {
     rm -f /etc/init.d/shadowsocks
     rm -f /usr/local/bin/v2ray-plugin
     echo -e "[${green}Info${plain}] shadowsocks-libev removed successfully."
-    echo -e "[${green}Info${plain}] Run ${green}~/lamp/lamp.sh uninstall${plain} to remove lamp."
+    echo -e "[${green}Info${plain}] Run ${green}echo y | bash ~/lamp/uninstall.sh${plain} to remove lamp."
 }
 
 # Initialization step
@@ -315,7 +315,7 @@ action=$1
 case "${action}" in
     install | uninstall)
         ${action}_shadowsocks
-        reboot
+        echo "Complete ${action}ing. Reboot if needed."
         ;;
     *)
         echo "Arguments error! [${action}]"

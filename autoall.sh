@@ -189,9 +189,9 @@ get_cert() {
             echo -e "[${red}Error${plain}] Failed to get cert."
             exit 1
         fi
-        ssl_certificate="/etc/letsencrypt/live/${domain}/fullchain.pem"
-        ssl_certificate_key="/etc/letsencrypt/live/${domain}/privkey.pem"
     fi
+    ssl_certificate="/etc/letsencrypt/live/${domain}/fullchain.pem"
+    ssl_certificate_key="/etc/letsencrypt/live/${domain}/privkey.pem"
 }
 
 check_lets_cron() {
