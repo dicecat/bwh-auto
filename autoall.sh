@@ -153,8 +153,6 @@ install_lamp_git() {
     ./lamp.sh --apache_option 1 --db_option 7 --db_root_pwd "$dbrootpwd" --php_option 1 --kodexplorer_option 2
     # check lamp install status
     [ ! "$(command -v php)" ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
-    mkdir -p /data/www/default.lamp
-    mv /data/www/default/* /data/www/default.lamp
 }
 
 #post install
@@ -163,7 +161,9 @@ set_folder() {
     website_root="/data/www/${domain}"
     php_admin_value="php_admin_value open_basedir ${website_root}:/tmp:/var/tmp:/proc"
     mkdir -p ${website_root}
-    cp -f /data/www/default.lamp/index.html ${website_root}
+    mkdir -p /data/www/default.lamp
+    cp -rf /data/www/default/* ${website_root}
+    mv /data/www/default/* /data/www/default.lamp
 }
 
 # https://certbot.eff.org/lets-encrypt/ubuntubionic-other

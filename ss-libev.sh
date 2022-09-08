@@ -315,7 +315,7 @@ action=$1
 case "${action}" in
     install | uninstall)
         ${action}_shadowsocks
-        echo "Complete ${action}ing. Reboot if needed."
+        echo -e "[${green}Info${plain}] Complete ${action}ing. Reboot if needed."
         ;;
     *)
         echo "Arguments error! [${action}]"
