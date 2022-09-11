@@ -11,6 +11,20 @@ wget --no-check-certificate -qO ~/ss-libev.sh https://raw.githubusercontent.com/
 . ~/add-site.sh prep && _choice_of_web="_main_call"
 chmod +x ~/*.sh
 
+install_util() {
+    util_pkg_list=(
+        host                `#func set_domain` \
+        unattended-upgrades `#func update_sys` \
+        git                 `#func install_lamp_git` \
+        certbot             `#func get_cert` \
+        sendmail            `#func essential_info`
+    )
+    apt-get -y update
+    for util_pkg in ${util_pkg_list[@]}; do
+        [ ! "$(command -v ${util_pkg})" ] && apt-get -qq install ${util_pkg}
+    done
+}
+
 # Set domain
 set_domain() {
     echo
@@ -146,11 +160,14 @@ install_lamp_git() {
     dbrootpwd="$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c${1:-32})"
 
     apt-get -qq install git
+    cd /root
     git clone https://github.com/teddysun/lamp.git
     cd /root/lamp
     chmod +x *.sh
     # php 8 not supported, https://opensourcepos.org/faq/ https://make.wordpress.org/core/ 
-    ./lamp.sh --apache_option 1 --db_option 7 --db_root_pwd "$dbrootpwd" --php_option 1 --kodexplorer_option 2
+    ./lamp.sh --apache_option 1 --db_option 7 --db_root_pwd "$dbrootpwd" --php_option 1 --db_manage_modules adminer --kodexplorer_option 2
+    #./lamp.sh --apache_option 1 --db_option 7 --db_root_pwd "$dbrootpwd" --php_option 1 --kodexplorer_option 2
+    cd /root
     # check lamp install status
     [ ! "$(command -v php)" ] && echo -e "[${red}Error${plain}] Fail to install lamp stack!" && exit 1
 }
@@ -160,28 +177,27 @@ set_folder() {
     apache_location=/usr/local/apache
     website_root="/data/www/${domain}"
     php_admin_value="php_admin_value open_basedir ${website_root}:/tmp:/var/tmp:/proc"
+
+    # enable ssl & ws
+    # https://lamp.sh/faq.html Q13
+    # https://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
+    # https://help.aliyun.com/document_detail/98727.html
+    sed -i '/.*mod_ssl.so.*/ s/^#//' ${apache_location}/conf/httpd.conf
+    sed -i 's@#Include conf/extra/httpd-ssl.conf@Include conf/extra/httpd-ssl.conf@g' ${apache_location}/conf/httpd.conf
+    sed -i '/.*wstunnel.*/ s/^#//' ${apache_location}/conf/httpd.conf
+    /etc/init.d/httpd restart
+
     mkdir -p ${website_root}
     mkdir -p /data/www/default.lamp
-    cp -rf /data/www/default/* ${website_root}
+    cp -prf /data/www/default/* ${website_root}
     mv /data/www/default/* /data/www/default.lamp
 }
 
 # https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 get_cert() {
-    # enable ssl & ws
-    # https://lamp.sh/faq.html Q15
-    # https://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
-    sed -i 's@#Include conf/extra/httpd-ssl.conf@Include conf/extra/httpd-ssl.conf@g' ${apache_location}/conf/httpd.conf
-    sed -i '/.*wstunnel.*/ s/^#//' ${apache_location}/conf/httpd.conf
-    /etc/init.d/httpd restart
-
     if [ -f /etc/letsencrypt/live/$domain/fullchain.pem ]; then
         echo -e "[${green}Info${plain}] cert already got, skip."
     else
-#        apt-get update
-#        apt-get -qq install software-properties-common
-#        add-apt-repository -y universe
-#        add-apt-repository -y ppa:certbot/certbot
         apt-get update
         apt-get -qq install certbot
         certbot certonly --agree-tos --register-unsafely-without-email --webroot -w ${website_root} -d ${domain}
@@ -347,6 +363,7 @@ EOF
 ####################
 
 check_environment
+#install_util
 set_domain
 set_email_addr
 set_pw_enc
@@ -356,6 +373,11 @@ enable_BBR
 fix_swap
 install_shadowsocks
 install_lamp_git
+# nasty fix for debian: mod_md disabled in 1st installation, but enable in 2nd attempt
+if grep -Eqi "debian" /etc/issue /proc/version; then
+    echo y | bash /root/lamp/uninstall.sh
+    install_lamp_git
+fi
 set_folder
 create_vhost80
 get_cert

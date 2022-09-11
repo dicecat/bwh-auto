@@ -1,6 +1,6 @@
 # bwh-auto: simplify the setup of ss+ws+tls+web
 
-## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) running Ubuntu 22.04
+## Tested OK on [BandwagonHost VPS](https://tinyurl.com/y4v2rl2u) Ubuntu 22.04 / Debian 11
 
 ## What it does
 
@@ -11,14 +11,14 @@
 
 ## Requirements
 
-1) a VPS running Ubuntu, might work on Debian;
+1) a VPS running Ubuntu / Debian;
 2) a valid domain pointing to the IP address of your VPS;
 3) (optional) an email address to receive SSH private key;
 4) (optional if chosen 3) set up a password to private key.
 
 ## Usage
 
-Start a screen session (optional but recommended):
+Start a screen session (recommended):
 
 ```
 apt update && apt -y install screen && screen -S autoall
@@ -29,13 +29,17 @@ Run scripts:
 wget --no-check-certificate -qO ~/autoall.sh https://git.io/JeyRB
 bash ~/autoall.sh 2>&1 | tee autoall.log
 ```
-After reboot, reconnect to VPS via SSH (get SSH private key from email if required), or use "Root shell" from KiwiVM panel:
+After reboot, reconnect to VPS via SSH (get SSH private key from email if required), or use "Root shell" in KiwiVM:
 
 ```
 cat ~/autoall.essential
 ```
 
 ## Changelog
+
+### 20220910
+
+Workaround fix for Debian 11.
 
 ### 20220905
 
