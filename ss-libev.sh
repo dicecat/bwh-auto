@@ -85,9 +85,10 @@ get_latest_version() {
 
     # shadowsocks_libev_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep name | grep tar | cut -f4 -d\" | cut -f1-3 -d.)
     # shadowsocks_libev_url=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep browser_download_url | cut -f4 -d\")
-    local shadowsocks_libev_release=$(wget --no-check-certificate -qO- https://github.com/shadowsocks/shadowsocks-libev/releases | grep 'releases/download' | head -n1 | cut -f2 -d\")
-    shadowsocks_libev_file=$(echo ${shadowsocks_libev_release} | cut -f7 -d\/ | cut -f1-3 -d.)
-    shadowsocks_libev_url="https://github.com${shadowsocks_libev_release}"
+    # local shadowsocks_libev_release=$(wget --no-check-certificate -qO- https://github.com/shadowsocks/shadowsocks-libev/releases | grep 'releases/tag' | head -n1 | cut -f2 -d\")
+    local shadowsocks_libev_release="3.3.5"
+    shadowsocks_libev_file="shadowsocks-libev-${shadowsocks_libev_release}"
+    shadowsocks_libev_url="https://github.com/shadowsocks/shadowsocks-libev/releases/download/v${shadowsocks_libev_release}/${shadowsocks_libev_file}.tar.gz"
 
     v2_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/teddysun/v2ray-plugin/releases/latest | grep linux-amd64 | grep name | cut -f4 -d\")
     v2_url=$(wget --no-check-certificate -qO- https://api.github.com/repos/teddysun/v2ray-plugin/releases/latest | grep linux-amd64 | grep browser_download_url | cut -f4 -d\")
